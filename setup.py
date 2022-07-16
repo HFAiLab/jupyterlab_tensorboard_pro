@@ -1,8 +1,11 @@
 """
-jupyterlab_tensorboard setup
+jupyterlab_tensorboard_pro setup
 """
+import os
 import json
 from pathlib import Path
+from setuptools.command.install import install
+from setuptools.command.develop import develop
 
 from jupyter_packaging import (
     create_cmdclass,
@@ -16,7 +19,7 @@ import setuptools
 HERE = Path(__file__).parent.resolve()
 
 # The name of the project
-name = "jupyterlab_tensorboard"
+name = "jupyterlab_tensorboard_pro"
 
 lab_path = (HERE / name / "labextension")
 
@@ -29,7 +32,7 @@ package_data_spec = {
     name: ["*"],
 }
 
-labext_name = "jupyterlab_tensorboard"
+labext_name = "jupyterlab_tensorboard_pro"
 
 data_files_spec = [
     ("share/jupyter/labextensions/%s" % labext_name, str(lab_path), "**"),
@@ -67,18 +70,30 @@ setup_args = dict(
     license=pkg_json["license"],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    cmdclass=cmdclass,
+    cmdclass=cmdclass, 
+    data_files=[
+        (
+            "etc/jupyter/jupyter_server_config.d",
+            ["jupyter-config/jupyter_server_config.d/jupyterlab_tensorboard_pro.json"]
+        ),
+    ],
     packages=setuptools.find_packages(),
     install_requires=[
-        "jupyterlab~=3.0",
-        "jupyter-tensorboard~=0.2.0"
+        "jupyterlab",
     ],
     zip_safe=False,
     include_package_data=True,
     python_requires=">=3.6",
     platforms="Linux, Mac OS X, Windows",
-    keywords=["Jupyter", "JupyterLab", "JupyterLab3"],
+    keywords=["Jupyter", "JupyterLab", "JupyterLab3", "Tensorboard", "Tensorflow" ],
+    entry_points={
+        'console_scripts': [
+            'jupyterlab-tensorboard-pro = jupyterlab_tensorboard_pro.application:main',
+         ],
+    },
     classifiers=[
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",

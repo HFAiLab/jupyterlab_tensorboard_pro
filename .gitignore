@@ -7,3 +7,7 @@ node_modules/
 *.tsbuildinfo
 .idea
 dist
+build
+
+jupyterlab_tensorboard_pro/labextension
+jupyterlab_tensorboard_pro/__pycache__

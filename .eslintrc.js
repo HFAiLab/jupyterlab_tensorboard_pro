@@ -1,4 +1,7 @@
 module.exports = {
+  env: {
+    node: true
+  },
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
@@ -7,7 +10,7 @@ module.exports = {
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: 'tsconfig.json',
+    project: ['tsconfig.eslint.json'],
     sourceType: 'module'
   },
   plugins: ['@typescript-eslint'],
@@ -15,12 +18,8 @@ module.exports = {
     '@typescript-eslint/naming-convention': [
       'error',
       {
-        'selector': 'interface',
-        'format': ['PascalCase'],
-        'custom': {
-          'regex': '^I[A-Z]',
-          'match': true
-        }
+        selector: 'interface',
+        format: ['PascalCase']
       }
     ],
     '@typescript-eslint/no-unused-vars': ['warn', { args: 'none' }],

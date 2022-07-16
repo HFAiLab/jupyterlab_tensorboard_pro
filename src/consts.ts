@@ -1,0 +1,1 @@
+export const DEFAULT_REFRESH_INTERVAL = 120;

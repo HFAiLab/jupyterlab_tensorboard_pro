@@ -1,14 +1,14 @@
 include LICENSE
 include README.md
 include pyproject.toml
-include jupyter-config/jupyterlab_tensorboard.json
+include jupyter-config/jupyterlab_tensorboard_pro.json
 
 include package.json
 include install.json
 include ts*.json
 include yarn.lock
 
-graft jupyterlab_tensorboard/labextension
+graft jupyterlab_tensorboard_pro/labextension
 
 # Javascript files
 graft src

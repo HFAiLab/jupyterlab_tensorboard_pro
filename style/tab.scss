@@ -1,0 +1,217 @@
+.tensorboard-ng-creator {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+}
+
+.tensorboard-ng-control-layout {
+  width: 100%;
+  height: 70px;
+  background-color: var(--jp-cell-editor-background);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .tensorboard-ng-control-row {
+    padding: 5px;
+    width: 100%;
+    height: 35px;
+    flex-direction: row;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    min-width: 760px;
+    &.hide {
+      height: 0px;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    &.creator {
+      background-color: var(--jp-border-color2);
+    }
+  }
+
+  &.hide-one {
+    height: 40px;
+  }
+}
+
+.tensorboard-ng-config {
+  display: flex;
+  flex-direction: row;
+  padding-left: 5px;
+  padding-right: 5px;
+  .input-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    label {
+      margin-right: 5px;
+      &.interval-switch {
+        margin-bottom: 0;
+      }
+    }
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+}
+
+.tensorboard-ng-logdir {
+  .refresh-dir-btn {
+    margin-right: 5px;
+    margin-left: 5px;
+  }
+  .reload-tip {
+    margin-bottom: 0;
+    margin-left: 5px;
+    font-size: 14px;
+  }
+}
+
+.tensorboard-ng-widget {
+  padding: 0;
+  .tensorboard-ng-op-btn {
+    &:not(:last-child) {
+      margin-right: 10px;
+    }
+  }
+}
+
+.tensorboard-ng-expand {
+  flex: 1;
+}
+
+.tensorboard-ng-iframe-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: var(--jp-layout-color1);
+  .tensorboard-ng-iframe {
+    width: 100%;
+    height: 100%;
+  }
+  .tensorboard-ng-iframe-tip {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background: var(--jp-layout-color1);
+    .common-tip {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: auto;
+    }
+
+    p {
+      max-width: 75%;
+      margin: auto;
+      font-size: var(--jp-ui-font-size3);
+      color: var(--jp-ui-font-color2);
+
+      &.error {
+        color: var(--jp-error-color1);
+      }
+
+      &.title {
+        margin: auto;
+        font-size: var(--jp-ui-font-size3);
+        color: var(--jp-ui-font-color1);
+        margin-bottom: 10px;
+        font-weight: bold; // 700
+      }
+    
+      &.desc {
+        margin: auto;
+        color: var(--jp-ui-font-color2);
+      }
+    }
+  }
+}
+
+.tensorboard-ng-main {
+  height: 100%;
+}
+
+.tb-ng-model-selector {
+  width: 200px;
+  height: 24px;
+
+  .selector-active-btn {
+    width: 200px;
+    .active-btn-text {
+      width: 170px;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
+
+.tensorboard-ng-ops {
+  &.create {
+    margin-left: 10px;
+  }
+}
+
+// loading
+
+.loading-container {
+  margin: auto;
+  display: flex;
+  height: max-content;
+  flex-direction: column;
+  align-items: center;
+  width: 67.8%;
+
+  .lds-ring {
+    margin: auto;
+    display: block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+  .lds-ring div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border: 8px solid #ccc;
+    border-radius: 50%;
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: #ccc transparent transparent transparent;
+  }
+  .lds-ring div:nth-child(1) {
+    animation-delay: -0.45s;
+  }
+  .lds-ring div:nth-child(2) {
+    animation-delay: -0.3s;
+  }
+  .lds-ring div:nth-child(3) {
+    animation-delay: -0.15s;
+  }
+  @keyframes lds-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  } 
+}
+
+

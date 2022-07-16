@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: master
+    branches: ['dev']
   pull_request:
-    branches: '*'
+    branches: ['dev']
 
 jobs:
   build:
@@ -15,21 +15,20 @@ jobs:
       - name: Install node
         uses: actions/setup-node@v1
         with:
-          node-version: '12.x'
+          node-version: '16.x'
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.7'
+          python-version: '3.8'
           architecture: 'x64'
-
 
       - name: Setup pip cache
         uses: actions/cache@v2
         with:
           path: ~/.cache/pip
-          key: pip-3.7-${{ hashFiles('package.json') }}
+          key: pip-3.8-${{ hashFiles('package.json') }}
           restore-keys: |
-            pip-3.7-
+            pip-3.8-
             pip-
 
       - name: Get yarn cache directory path
@@ -51,5 +50,5 @@ jobs:
           jlpm
           python -m pip install .
 
-          jupyter labextension list 2>&1 | grep -ie "jupyterlab_tensorboard.*OK"
+          jupyter labextension list 2>&1 | grep -ie "jupyterlab_tensorboard_pro.*OK"
           python -m jupyterlab.browser_check
