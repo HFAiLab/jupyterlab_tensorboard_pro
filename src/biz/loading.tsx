@@ -7,7 +7,7 @@ export interface LoadingProps {
 
 export const Loading = (props: LoadingProps): JSX.Element => {
   return (
-    <div className="loading-container">
+    <div className="tensorboard-loading-container">
       <div className="lds-ring">
         <div></div>
         <div></div>

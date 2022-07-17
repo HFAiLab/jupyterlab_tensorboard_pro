@@ -25,10 +25,6 @@ export const tensorboardIcon = new LabIcon({
 });
 
 /**
- * The command IDs used by the tensorboard plugin.
- */
-
-/**
  * Initialization data for the tensorboard extension.
  */
 const extension: JupyterFrontEndPlugin<IWidgetTracker<MainAreaWidget<TensorboardTabReactWidget>>> =
@@ -102,6 +98,7 @@ function addRunningSessionManager(
     private _model: Tensorboard.IModel;
   }
 }
+
 /**
  * Add the commands for the tensorboard.
  */

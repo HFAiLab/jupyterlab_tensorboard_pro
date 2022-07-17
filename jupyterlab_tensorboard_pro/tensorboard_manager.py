@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2017-2019, Shengpeng Liu.  All rights reserved.
 # Copyright (c) 2020-2021, NVIDIA CORPORATION. All rights reserved.
+# Copyright (c) 2022, HFAiLab. All rights reserved.
 
 import os
 import sys
@@ -139,7 +140,7 @@ class TensorboardManger(dict):
 
         if logdir not in self._logdir_dict:
             purge_orphaned_data = True
-            reload_interval = 30 if reload_interval is None else reload_interval
+            reload_interval = 120 if reload_interval is None else reload_interval
             create_tb_app(
                 logdir=logdir, reload_interval=reload_interval,
                 purge_orphaned_data=purge_orphaned_data)

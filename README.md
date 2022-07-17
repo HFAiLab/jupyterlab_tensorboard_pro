@@ -1,10 +1,10 @@
-# Jupyterlab-TensorBoard-Pro
+# JupyterLab-TensorBoard-Pro
 
-![Github Actions Status](https://github.com/HFAiLab/jupyterlab_tensorboard_pro/workflows/Build/badge.svg)&nbsp;![pypi](https://img.shields.io/pypi/v/jupyterlab_tensorboard_pro.svg)
+![Github Actions Status](https://github.com/HFAiLab/jupyterlab_tensorboard_pro/workflows/Build/badge.svg)&nbsp;[![pypi](https://img.shields.io/pypi/v/jupyterlab_tensorboard_pro.svg)](https://pypi.org/project/jupyterlab-tensorboard-pro/)
 
 [中文文档](./README.zh-cn.md)
 
-A TensorBoard Jupyterlab plugin.
+A TensorBoard JupyterLab plugin.
 
 ![](./images/tensorboard.step4.png)
 
@@ -28,11 +28,13 @@ pip install jupyterlab-tensorboard-pro
 
 ## Background
 
-In fact, there are already [jupyterlab_tensorboard](https://github.com/chaoleili/jupyterlab_tensorboard) (front-end plugin) and [jupyter_tensorboard](https://github.com/lspvic/jupyter_tensorboard) (corresponding back-end plugin) in the community. side plugin), but both repositories have not been updated for a long time, and some new repair PRs have not been merged in time. Based on this, it is judged that the project author is no longer actively maintaining the corresponding repositories.
+In fact, there are already [jupyterlab_tensorboard](https://github.com/chaoleili/jupyterlab_tensorboard) (front-end plugin) and [jupyter_tensorboard](https://github.com/lspvic/jupyter_tensorboard) (back-end plugin) in the community, but both repositories have not been updated for a long time, and some new repair PRs have not been merged in time. Based on this, maybe the project author is no longer actively maintaining the corresponding repositories.
 
-At the same time, the existing community TensorBoard plugin has certain experience problems, such as installing two python packages at the same time, no response for a long time after clicking `TensorBoard`, the TensorBoard Reload time cannot be set. The interactive experience is not friendly enough, which will also affect the user's Jupyterlab experience.
+At the same time, the existing community TensorBoard plugin has some experience problems, such as installing two python packages at the same time, no response for a long time after clicking `TensorBoard`, and the TensorBoard Reload time cannot be set. The interactive experience is not friendly enough, which will also affect the user's JupyterLab experience.
 
-Therefore, this project is forked from the existing projects of the community, makes changes to the logic, and refers to some previous PRs that are more helpful but have not been incorporated for the time being, and will to be maintained for a long time in the future.
+Therefore, this project is forked from the existing projects of the community, and we made some positive changes, contained some previous PRs which are helpful but have not been merged for the time being. This repo will to be maintained for a long time in the future.
+
+This repo has also changed the api name, so it can be completely independent of the above plugins.
 
 Special thanks to the developers of the previous related repositories.
 
@@ -42,11 +44,11 @@ Special thanks to the developers of the previous related repositories.
 
 #### Create from launcher panel
 
-We can click on the TensorBoard icon from the Launcher panel, the first click will take you to a default initialization panel from which we can create a TensorBoard instance. Non-first entry will directly enter the first active TensorBoard instance.
+We can click the TensorBoard icon from the Launcher panel, the first click will take you to a default initialization panel from which we can create a TensorBoard instance. But if there is an active TensorBoard backend at this time, it will be opened directly.
 
 ![](./images/tensorboard.step1.png)
 
-#### Created by shortcut command
+#### Create by shortcut command
 
 We can also type `Open TensorBoard` in the JupyterLab shortcut panel (evoked by `ctrl + shift + c`)
 
@@ -56,24 +58,27 @@ We can also type `Open TensorBoard` in the JupyterLab shortcut panel (evoked by 
 
 In the initialization panel, two parameters are provided:
 
-- **Log Dir**: The default is the directory of the current sidebar when TensorBoard is clicked. You can also manually fill in the corresponding directory. It is recommended to make the directory as detailed as possible. If the directory content is small, the initialization speed will be improved.
-- **Reload Interval**: How often does TensorBoard backend rescan the corresponding directory. This option is disabled by default. It is recommended to use manually Reload for daily use (The continuous scanning of directories by the TensorBoard backend will have a certain impact on Jupyter's stability and file system).
+- **Log Dir**: The default is the **relative directory** of the current sidebar when TensorBoard is clicked. You can also manually fill in the corresponding directory. It is recommended to make the directory as detailed as possible. If the directory content is small, the initialization speed will be improved.
+- **Reload Interval**: How often does TensorBoard backend rescan the corresponding directory. This option is set to 120 seconds by default. But it is recommended to disable and use manually Reload for daily use (The continuous scanning of directories by the TensorBoard backend will have some impact on Jupyter's stability and file system).
 
 Select the parameters and click Create TensorBoard, and the TensorBoard instance will be created synchronously. At this time, the jupyter backend is **blocking**, please wait for the instance to be created before performing other operations.
+
 ![](./images/tensorboard.step3.png)
 
 ### Manage instances
 
-After the instance is created, we can manage the instance of TensorBoard. Currently, the following functions are provided:
+After the instance of TensorBoard is created, we can manage the instance. Currently, the following functions are provided:
 
-- **Refresh and list switching**: TensorBoard backends that can be switched to other instances will not be destroyed at this time.
-- **Open in a separate page**: You can open TensorBoard in the form of a separate web page Tab.
+- **Refresh and list all**: TensorBoard backends can be switched to other instances (won't destroy the before)
+- **Open in a separate page**: You can open TensorBoard in the form of a separate web page tab.
 - **Reload**: Reinitialize the TensorBoard backend. When the content of the file is updated, you can load the new content through this function (Note: The refresh inside TensorBoard will not cause Reload).
-- **Destroy**: Destroy the instance, it will close together with the front panel.
-- **Duplicate**: reopen an identical frontend panel, this operation will reuse the TensorBoard backend.
-- **New**: Create an additional TensorBoard backend, please refer to the first part for precautions.
+- **Destroy**: Destroy the instance, it will close both the backend and the frontend panel.
+- **Duplicate**: Open an identical frontend panel, this operation will reuse the TensorBoard backend.
+- **New**: Create an additional TensorBoard backend, please refer to the above for precautions.
 
-In addition, for the TensorBoard instance we created, it can be managed together in the Kernel management panel of Jupyter, providing functions such as jumping to the corresponding instance and deleting.
+In addition, for the TensorBoard instance we created, it can be managed in the Kernel management panel of Jupyter, providing functions such as jumping to the corresponding instance and deleting.
+
+![](./images/tensorboard.step5.png)
 
 ## Develop
 
@@ -81,11 +86,17 @@ In addition, for the TensorBoard instance we created, it can be managed together
 jlpm install
 jlpm run install:client
 jlpm run install:server
-# after above maybe you need to use a soft link
+# after above maybe you need create use a soft link to hot update
 ```
 
-build
+watch frontend:
+```
+jlpm run watch
+```
 
+build:
 ```
 python setup.py bdist_wheel --universal
 ```
+
+Under normal circumstances, you can just submit MR, the developers of this project will package and publish to pypi.

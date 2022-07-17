@@ -190,6 +190,13 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
   };
 
   const startTensorBoard = (logDir: string, reloadInterval: number) => {
+    if (Number.isNaN(reloadInterval) || reloadInterval < 0) {
+      return showDialog({
+        title: 'Param Check Failed',
+        body: 'reloadInterval should > 0 when enabled',
+        buttons: [Dialog.okButton()]
+      });
+    }
     updateCreatePending(true);
     const currentName = currentTensorBoard?.name;
     props.tensorboardManager
@@ -335,7 +342,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
     } else {
       return (
         <div className="common-tip">
-          <p className="title">No instance yet, Please create a new TensorBoard</p>
+          <p className="title">No instance yet, please create a new TensorBoard</p>
           <p className="desc">
             <i>
               If the selected log directory has too much content, tensorboard initialization may

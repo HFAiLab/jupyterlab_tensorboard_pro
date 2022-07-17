@@ -1,3 +1,6 @@
+/**
+ * The command IDs used by the tensorboard plugin.
+ */
 export namespace CommandIDs {
   export const createNew = 'tensorboard:create-new';
 

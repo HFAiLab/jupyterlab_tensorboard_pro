@@ -1,13 +1,8 @@
 import { each, map, toArray, IIterator } from '@lumino/algorithm';
-
 import { IDisposable } from '@lumino/disposable';
-
 import { JSONObject } from '@lumino/coreutils';
-
 import { URLExt } from '@jupyterlab/coreutils';
-
 import { Signal, ISignal } from '@lumino/signaling';
-
 import { ServerConnection } from '@jupyterlab/services';
 
 /**
