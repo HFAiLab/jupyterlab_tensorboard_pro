@@ -40,15 +40,15 @@ Special thanks to the developers of the previous related repositories.
 
 ## Instructions
 
-### Create instance
+### Create Instance
 
-#### Create from launcher panel
+#### Create from Launcher Panel
 
 We can click the TensorBoard icon from the Launcher panel, the first click will take you to a default initialization panel from which we can create a TensorBoard instance. But if there is an active TensorBoard backend at this time, it will be opened directly.
 
 ![](./images/tensorboard.step1.png)
 
-#### Create by shortcut command
+#### Create by Shortcut Command
 
 We can also type `Open TensorBoard` in the JupyterLab shortcut panel (evoked by `ctrl + shift + c`)
 
@@ -65,7 +65,7 @@ Select the parameters and click Create TensorBoard, and the TensorBoard instance
 
 ![](./images/tensorboard.step3.png)
 
-### Manage instances
+### Manage Instances
 
 After the instance of TensorBoard is created, we can manage the instance. Currently, the following functions are provided:
 
