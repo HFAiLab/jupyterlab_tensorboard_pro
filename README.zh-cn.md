@@ -15,12 +15,12 @@
 - jupyterlab
 - tensorflow
 - tensorboard
+
 ## 安装
 
 ```
 pip install jupyterlab-tensorboard-pro
 ```
-
 
 > 这是一个 jupyterlab 插件，目前已经不在支持 jupyter notebook
 
@@ -28,7 +28,7 @@ pip install jupyterlab-tensorboard-pro
 
 实际上，目前社区里面已经有了[jupyterlab_tensorboard](https://github.com/chaoleili/jupyterlab_tensorboard)（前端插件）和 [jupyter_tensorboard](https://github.com/lspvic/jupyter_tensorboard)（对应的后端插件），不过两个仓库都已经很久没有更新，对于一些新的修复 PR 也没有及时合入，基于此判断项目作者已经不在积极地维护对应仓库。
 
-同时，现有社区的 TensorBoard 插件存在一定的体验问题，比如需要同时安装两个 python 包，点击之后无任何响应，无法设置 TensorBoard Reload 时间等问题，交互体验不够友好，也会影响用户的 JupyterLab 使用体验。
+同时，现有社区的 TensorBoard 插件存在一定的体验问题，比如需要同时安装两个 python 包，以及点击之后无任何响应，无法设置 TensorBoard Reload 时间等问题，交互体验不够友好，也会影响用户的 JupyterLab 使用体验。
 
 因此本项目 fork 了社区现有项目，对逻辑进行更改，并且参考了之前一些比较有帮助但是暂时没有合入的 PR，希望能够在接下来较长的一段时间持续维护。
 
@@ -57,7 +57,7 @@ pip install jupyterlab-tensorboard-pro
 在初始化面板中，提供了两个参数设置项目：
 
 - **Log Dir**：默认是点击 TensorBoard 时当前侧边栏的目录，也可以手动填写对应目录，这里建议目录尽可能的细化，目录内容比较少的话会提高初始化速度。
-- **Reload Interval**：TensorBoard 多久对对应目录进行一次重新扫描，这个选项是默认关闭的，建议日常使用选择手动 Reload 即可（设置 Reload Interval 之后，TensorBoard 后端持续扫描目录会对 Jupyter 的稳定性和文件系统都产生一定的影响）。
+- **Reload Interval**：TensorBoard 多久对对应目录进行一次重新扫描，这个选项是默认是 120s，但是如果不需要建议及时关闭，日常使用选择手动 Reload 即可（设置 Reload Interval 之后，TensorBoard 后端持续扫描目录会对 Jupyter 的稳定性和文件系统都产生一定的影响）。
 
 选择好参数点击 Create TensorBoard，会同步创建 TensorBoard 实例，这个时候 jupyter 后端是**阻塞**的，请等待实例创建好之后再进行其他操作。
 
@@ -88,6 +88,7 @@ jlpm run install:server
 ```
 
 前端部分开发：
+
 ```
 jlpm run watch
 ```
@@ -95,8 +96,9 @@ jlpm run watch
 后端部分可以在设置软链接之后，直接修改 python 文件，重启生效。
 
 打包:
+
 ```
 python setup.py bdist_wheel --universal
 ```
 
-一般情况下只能提交MR，本项​​目的开发者可以打包发布到 pypi。
+一般情况下只能提交 MR，本项 ​​ 目的开发者可以打包发布到 pypi。
