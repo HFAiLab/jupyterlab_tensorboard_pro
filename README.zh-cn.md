@@ -104,7 +104,7 @@ aws_secret_access_key = ********
 pip install botocore boto3 tensorflow-io
 ```
 
-之后你可以输入一个 s3 路径，然后点击 tensorboard 的刷新按钮，等待加载完成后即可展示
+之后你可以输入一个 s3 路径，然后点击 tensorboard 的刷新按钮，等待加载完成后即可展示：
 
 ![](./images/tensorboard.step6.png)
 
@@ -114,6 +114,7 @@ pip install botocore boto3 tensorflow-io
 
 ```shell
 jlpm install
+pip install jupyter_packaging
 jlpm run install:client
 jlpm run install:server
 # after above maybe you need create use a soft link to hot update
@@ -133,4 +134,4 @@ jlpm run watch
 python setup.py bdist_wheel --universal
 ```
 
-一般情况下只能提交 MR，本项 ​​ 目的开发者可以打包发布到 pypi。
+一般情况下提交 MR 即可，本项目的开发者可以打包发布到 pypi。

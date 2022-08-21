@@ -106,11 +106,11 @@ Then you need to install some additional dependencies:
 pip install botocore boto3 tensorflow-io
 ```
 
-After that, you can enter an s3 path, then click the refresh button of tensorboard, and wait for the loading to complete to display:
+After that, you can enter an s3 path, then click the refresh button of tensorboard, and wait the loading:
 
 ![](./images/tensorboard.step6.png)
 
-> 实际上，现在 tensorboard 本身在这里的状态提示并不友好，后续我们会进一步调研有没有更好的体验的方式
+> In fact, the status prompt of tensorboard itself is not friendly now, and we will further investigate whether there is a better way to experience it later.
 
 
 ## Develop
