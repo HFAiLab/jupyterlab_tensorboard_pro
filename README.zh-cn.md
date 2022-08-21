@@ -78,10 +78,43 @@ pip install jupyterlab-tensorboard-pro
 
 ![](./images/tensorboard.step5.png)
 
+### 使用 AWS S3
+
+> 这里假设你已经对 aws s3 有了一定的使用经验
+
+TensorBoard 支持通过 `s3://path/to/dir` 的方式传入一个 s3 的路径，这个方式在本插件内也同样支持。
+
+不过，因为 s3 的路径通常并不是直接可以访问的，需要先通过 `aws configure` 配置一些基本信息（[下载](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) aws cli），通常情况下，JupyterLab 运行所在的系统应该有以下文件：
+
+```shell
+# ~/.aws/config
+[default]
+region = ap-southeast-1
+output = json
+
+# ~/.aws/credentials
+[default]
+aws_access_key_id = ********
+aws_secret_access_key = ********
+```
+
+然后你需要额外安装一些依赖：
+
+```
+pip install botocore boto3 tensorflow-io
+```
+
+之后你可以输入一个 s3 路径，然后点击 tensorboard 的刷新按钮，等待加载完成后即可展示：
+
+![](./images/tensorboard.step6.png)
+
+> 实际上，现在 tensorboard 本身在这里的状态提示并不友好，后续我们会进一步调研有没有更好的体验的方式
+
 ## 本地开发
 
 ```shell
 jlpm install
+pip install jupyter_packaging
 jlpm run install:client
 jlpm run install:server
 # after above maybe you need create use a soft link to hot update
@@ -101,4 +134,4 @@ jlpm run watch
 python setup.py bdist_wheel --universal
 ```
 
-一般情况下只能提交 MR，本项 ​​ 目的开发者可以打包发布到 pypi。
+一般情况下提交 MR 即可，本项目的开发者可以打包发布到 pypi。

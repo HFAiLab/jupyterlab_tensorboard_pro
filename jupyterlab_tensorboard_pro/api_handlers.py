@@ -10,6 +10,8 @@ from .handlers import notebook_dir
 
 
 def _trim_notebook_dir(dir):
+    if dir.startswith("s3://"):
+        return dir
     if not dir.startswith("/"):
         return os.path.join(
             "<notebook_dir>", os.path.relpath(dir, notebook_dir)
