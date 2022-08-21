@@ -8,6 +8,7 @@ node_modules/
 .idea
 dist
 build
+debug.log
 
 jupyterlab_tensorboard_pro/labextension
 jupyterlab_tensorboard_pro/__pycache__

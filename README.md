@@ -80,12 +80,47 @@ In addition, for the TensorBoard instance we created, it can be managed in the K
 
 ![](./images/tensorboard.step5.png)
 
+### Use AWS S3
+
+> It is assumed here that you have some experience with aws s3
+
+TensorBoard supports passing an s3 path via `s3://path/to/dir`, which is also supported in this plugin.
+
+However, because the s3 path is usually not directly accessible, you need to configure some basic information through `aws configure` ([download](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) aws cli), Usually, the system where JupyterLab is running should have the following files:
+
+```shell
+# ~/.aws/config
+[default]
+region = ap-southeast-1
+output = json
+
+# ~/.aws/credentials
+[default]
+aws_access_key_id = ********
+aws_secret_access_key = ********
+```
+
+Then you need to install some additional dependencies:
+
+```
+pip install botocore boto3 tensorflow-io
+```
+
+After that, you can enter an s3 path, then click the refresh button of tensorboard, and wait for the loading to complete to display:
+
+![](./images/tensorboard.step6.png)
+
+> 实际上，现在 tensorboard 本身在这里的状态提示并不友好，后续我们会进一步调研有没有更好的体验的方式
+
+
 ## Develop
 
 ```shell
 jlpm install
+pip install jupyter_packaging
 jlpm run install:client
 jlpm run install:server
+ln -s /path/to/jupyterlab_tensorboard_pro/jupyterlab_tensorboard_pro
 # after above maybe you need create use a soft link to hot update
 ```
 

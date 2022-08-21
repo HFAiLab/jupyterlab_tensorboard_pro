@@ -284,6 +284,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
 
   const formatDir = (dir: string) => {
     const pageRoot = PageConfig.getOption('serverRoot');
+
     if (pageRoot && dir.indexOf(pageRoot) === 0) {
       let replaceResult = dir.replace(pageRoot, '');
       if (replaceResult === '') {
@@ -291,7 +292,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
       }
       return `WORKSPACE${replaceResult}`;
     }
-    return pageRoot;
+    return dir;
   };
 
   const getShowName = (model: Tensorboard.IModel) => {

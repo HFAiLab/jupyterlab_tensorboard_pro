@@ -37,7 +37,6 @@ def get_plugins():
             plugins += default.get_dynamic_plugins()
 
         return plugins
-
     return None
 
 try:
@@ -135,7 +134,7 @@ class TensorboardManger(dict):
                 return name
 
     def new_instance(self, logdir, reload_interval):
-        if not os.path.isabs(logdir) and notebook_dir:
+        if not os.path.isabs(logdir) and notebook_dir and not logdir.startswith("s3://"):
             logdir = os.path.join(notebook_dir, logdir)
 
         if logdir not in self._logdir_dict:
