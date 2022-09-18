@@ -5,13 +5,12 @@
 
 import os
 import sys
-import time
 import inspect
 import itertools
 from collections import namedtuple
 import logging
 
-import six
+is_debug = True if '--debug' in sys.argv else False
 
 sys.argv = ["tensorboard"]
 
@@ -125,6 +124,9 @@ class TensorboardManger(dict):
 
     def __init__(self):
         self._logdir_dict = {}
+        if is_debug:
+            _logger = logging.getLogger("tensorboard")
+            _logger.setLevel(logging.DEBUG)
 
     def _next_available_name(self):
         # hint: 这里实现的机制，让我们可以通过 delete + create 去模拟 reload，并且 name 保持不变

@@ -112,6 +112,9 @@ After that, you can enter an s3 path, then click the refresh button of tensorboa
 
 > In fact, the status prompt of tensorboard itself is not friendly now, and we will further investigate whether there is a better way to experience it later.
 
+## Debug
+
+You can use `jupyter-lab --debug` to enable debug logging for JupyterLab and TensorBoard.
 
 ## Develop
 

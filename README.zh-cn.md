@@ -110,6 +110,10 @@ pip install botocore boto3 tensorflow-io
 
 > 实际上，现在 tensorboard 本身在这里的状态提示并不友好，后续我们会进一步调研有没有更好的体验的方式
 
+## 调试
+
+你可以通过 `jupyter-lab --debug` 开启 JupyterLab 和 TensorBoard 的调试日志。
+
 ## 本地开发
 
 ```shell
