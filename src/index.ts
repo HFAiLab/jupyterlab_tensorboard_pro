@@ -115,13 +115,18 @@ export function addCommands(
   commands.addCommand(CommandIDs.open, {
     execute: args => {
       // if select certain
-      const modelName = args['modelName'] as string | undefined;
+
+      let modelName = args['modelName'] as string | undefined;
       const copy = args['copy'];
+      const currentCWD = browserFactory.defaultBrowser.model.path;
 
       let widget: MainAreaWidget<TensorboardTabReactWidget> | null = null;
+
+      // step1: find an opened widget
       if (!modelName) {
-        // just get the first:
-        widget = tracker.find(() => true);
+        widget = tracker.find(widget => {
+          return manager.formatDir(widget.content.currentLogDir) === manager.formatDir(currentCWD);
+        });
       } else if (!copy) {
         widget = tracker.find(value => {
           return value.content.currentTensorBoardModel.name === modelName;
@@ -132,6 +137,17 @@ export function addCommands(
         app.shell.activateById(widget.id);
         return widget;
       } else {
+        // step2: try find opened backend widgets
+        if (!modelName) {
+          const runningTensorboards = [...toArray(manager.running())];
+          // hint: Using runningTensorboards directly may cause setState to fail to respond
+          for (const model of runningTensorboards) {
+            if (manager.formatDir(model.logdir) === manager.formatDir(currentCWD)) {
+              modelName = model.name;
+            }
+          }
+        }
+
         const tabReact = new TensorboardTabReactWidget({
           browserFactory,
           tensorboardManager: manager,

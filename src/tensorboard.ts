@@ -13,6 +13,8 @@ import { ServerConnection } from '@jupyterlab/services';
  */
 const TENSORBOARD_SERVICE_URL = 'api/tensorboard_pro';
 
+const TENSORBOARD_STATIC_CONFIG_URL = 'api/tensorboard_pro_static_config';
+
 const TENSORBOARD_URL = 'tensorboard_pro';
 
 /**
@@ -62,6 +64,10 @@ export namespace Tensorboard {
     options?: IOptions
   ): Promise<ITensorboard> {
     return DefaultTensorboard.startNew(logdir, refreshInterval, options);
+  }
+
+  export function getStaticConfig(settings?: ServerConnection.ISettings): Promise<StaticConfig> {
+    return DefaultTensorboard.getStaticConfig(settings);
   }
 
   /**
@@ -137,6 +143,13 @@ export namespace Tensorboard {
      * The last reload time of the tensorboard.
      */
     readonly reload_time: string;
+  }
+
+  export interface StaticConfig extends JSONObject {
+    /**
+     * The name of the tensorboard.
+     */
+    readonly notebook_dir: string;
   }
 
   /**
@@ -275,15 +288,6 @@ export namespace DefaultTensorboard {
 
     const init = { method: 'POST', headers: header, body: data };
 
-    console.log(
-      `tensorboard start: url: ${url}, init: `,
-      init,
-      'data:',
-      data,
-      ', serverSettings:',
-      serverSettings
-    );
-
     return ServerConnection.makeRequest(url, init, serverSettings)
       .then(response => {
         if (response.status !== 200) {
@@ -300,6 +304,22 @@ export namespace DefaultTensorboard {
           ...options,
           serverSettings
         });
+      });
+  }
+
+  export function getStaticConfig(
+    settings?: ServerConnection.ISettings
+  ): Promise<Tensorboard.StaticConfig> {
+    const statis_config_url = Private.getTensorboardStaticConfigUrl(settings.baseUrl);
+    return ServerConnection.makeRequest(statis_config_url, {}, settings)
+      .then(response => {
+        if (response.status !== 200) {
+          throw new ServerConnection.ResponseError(response);
+        }
+        return response.json();
+      })
+      .then((data: Tensorboard.StaticConfig) => {
+        return data;
       });
   }
 
@@ -359,7 +379,6 @@ export namespace DefaultTensorboard {
     return ServerConnection.makeRequest(url, init, settings).then(response => {
       if (response.status === 404) {
         return response.json().then(data => {
-          console.warn(data['message']);
           Private.killTensorboard(url);
         });
       }
@@ -409,6 +428,13 @@ namespace Private {
    */
   export function getTensorboardUrl(baseUrl: string, name: string): string {
     return URLExt.join(baseUrl, TENSORBOARD_SERVICE_URL, name);
+  }
+
+  /**
+   * Get the url for a tensorboard.
+   */
+  export function getTensorboardStaticConfigUrl(baseUrl: string): string {
+    return URLExt.join(baseUrl, TENSORBOARD_STATIC_CONFIG_URL);
   }
 
   /**

@@ -22,6 +22,7 @@ export class TensorboardManager implements Tensorboard.IManager {
       }
       this._refreshRunning();
     }, 10000);
+    this._getStaticConfig();
   }
 
   /**
@@ -77,6 +78,23 @@ export class TensorboardManager implements Tensorboard.IManager {
    */
   running(): IIterator<Tensorboard.IModel> {
     return iter(this._models);
+  }
+
+  formatDir(dir: string): string {
+    const pageRoot = this._statusConfig?.notebook_dir;
+
+    if (pageRoot && dir.indexOf(pageRoot) === 0) {
+      let replaceResult = dir.replace(pageRoot, '');
+      if (replaceResult === '') {
+        replaceResult = '/';
+      }
+      const formatted = `${replaceResult}`.replace(/^\//, '');
+      if (!formatted) {
+        return '<workspace_root>';
+      }
+      return formatted;
+    }
+    return dir;
   }
 
   /**
@@ -219,6 +237,12 @@ export class TensorboardManager implements Tensorboard.IManager {
     });
   }
 
+  private _getStaticConfig(): Promise<void> {
+    return Tensorboard.getStaticConfig(this.serverSettings).then(config => {
+      this._statusConfig = config;
+    });
+  }
+
   /**
    * Get a set of options to pass.
    */
@@ -233,6 +257,7 @@ export class TensorboardManager implements Tensorboard.IManager {
   private _readyPromise: Promise<void>;
   private _refreshTimer = -1;
   private _runningChanged = new Signal<this, Tensorboard.IModel[]>(this);
+  private _statusConfig: Tensorboard.StaticConfig | null = null;
 }
 /**
  * The namespace for TensorboardManager statics.

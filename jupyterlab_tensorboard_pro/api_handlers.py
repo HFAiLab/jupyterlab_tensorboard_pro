@@ -19,6 +19,16 @@ def _trim_notebook_dir(dir):
     return dir
 
 
+class TbRootConfigHandler(APIHandler):
+
+    @web.authenticated
+    def get(self):
+        terms = {
+            'notebook_dir': notebook_dir,
+        }
+        self.finish(json.dumps(terms))
+
+
 class TbRootHandler(APIHandler):
 
     @web.authenticated

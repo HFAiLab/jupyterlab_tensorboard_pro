@@ -29,6 +29,7 @@ export class TensorboardTabReactWidget extends ReactWidget {
 
   currentTensorBoardModel: Tensorboard.IModel | null = null;
   createdModelName?: string;
+  currentLogDir?: string;
 
   /**
    * Constructs a new CounterWidget.
@@ -39,6 +40,10 @@ export class TensorboardTabReactWidget extends ReactWidget {
     this.tensorboardManager = options.tensorboardManager;
     this.createdModelName = options.createdModelName;
     this.app = options.app;
+    if (!this.createdModelName) {
+      // hint: if createdModelName exists，update later
+      this.currentLogDir = this.getCWD();
+    }
 
     this.addClass('tensorboard-ng-widget');
     this.addClass(TENSORBOARD_CLASS);
@@ -63,9 +68,10 @@ export class TensorboardTabReactWidget extends ReactWidget {
 
   protected updateCurrentModel = (model: Tensorboard.IModel): void => {
     this.currentTensorBoardModel = model;
+    this.currentLogDir = model.logdir;
   };
 
-  protected getCWD = (): string => {
+  getCWD = (): string => {
     return this.browserFactory.defaultBrowser.model.path;
   };
 
@@ -85,12 +91,22 @@ export class TensorboardTabReactWidget extends ReactWidget {
     this.app.commands.execute(CommandIDs.openDoc);
   };
 
+  startNew = (
+    logdir: string,
+    refreshInterval: number,
+    options?: Tensorboard.IOptions
+  ): Promise<Tensorboard.ITensorboard> => {
+    this.currentLogDir = logdir;
+    return this.tensorboardManager.startNew(logdir, refreshInterval, options);
+  };
+
   render(): JSX.Element {
     return (
       <TensorboardTabReact
         update={this.update.bind(this)}
         updateCurrentModel={this.updateCurrentModel}
         tensorboardManager={this.tensorboardManager}
+        startNew={this.startNew}
         getCWD={this.getCWD}
         openTensorBoard={this.openTensorBoard}
         closeWidget={this.closeCurrent}

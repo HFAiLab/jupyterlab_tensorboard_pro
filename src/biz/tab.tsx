@@ -7,7 +7,6 @@ import { Tag } from '@blueprintjs/core/lib/esm/components/tag/tag';
 import { toArray } from '@lumino/algorithm';
 import classNames from 'classnames';
 import { Select } from '@blueprintjs/select';
-import { PageConfig } from '@jupyterlab/coreutils';
 import { showDialog, Dialog } from '@jupyterlab/apputils';
 import { Loading } from './loading';
 import { Tensorboard } from '../tensorboard';
@@ -35,7 +34,7 @@ const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
           </label>
           <InputGroup
             style={{ width: 160 }}
-            small
+            small={true}
             placeholder="Enter your log dir..."
             value={logDir}
             onChange={e => {
@@ -59,7 +58,7 @@ const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
           {enableReloadInterval && (
             <InputGroup
               style={{ width: 80 }}
-              small
+              small={true}
               placeholder="Enter your reload_interval ..."
               value={enableReloadInterval ? `${reloadInterval}` : ''}
               onChange={e => {
@@ -73,7 +72,7 @@ const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
       </div>
       <div className="tensorboard-ng-ops create">
         <Button
-          small
+          small={true}
           intent="warning"
           className="tensorboard-ng-op-btn"
           onClick={() => {
@@ -84,10 +83,10 @@ const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
           Create TensorBoard
         </Button>
       </div>
-      <div className="tensorboard-ng-expand"></div>
+      <div className="tensorboard-ng-expand" />
       <Button
-        small
-        outlined
+        small={true}
+        outlined={true}
         icon="help"
         onClick={() => {
           props.openDoc();
@@ -108,6 +107,11 @@ export interface TensorboardTabReactProps {
   openDoc: () => void;
   update: () => void;
   updateCurrentModel: (model: Tensorboard.IModel) => void;
+  startNew: (
+    logdir: string,
+    refreshInterval: number,
+    options?: Tensorboard.IOptions
+  ) => Promise<Tensorboard.ITensorboard>;
 }
 
 const ModelSelector = Select.ofType<Tensorboard.IModel>();
@@ -179,6 +183,12 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
         : modelList[0];
 
       if (model) {
+        if (
+          props.tensorboardManager.formatDir(model.logdir) !==
+          props.tensorboardManager.formatDir(props.getCWD())
+        ) {
+          setShowNewRow(true);
+        }
         updateCurrentTensorBoard(model);
         setShowListStatus(true);
       } else {
@@ -199,7 +209,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
     }
     updateCreatePending(true);
     const currentName = currentTensorBoard?.name;
-    props.tensorboardManager
+    props
       .startNew(logDir, reloadInterval)
       .then(tb => {
         if (currentName === tb.model.name) {
@@ -282,21 +292,8 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
     props.openTensorBoard(currentTensorBoard.name, true);
   };
 
-  const formatDir = (dir: string) => {
-    const pageRoot = PageConfig.getOption('serverRoot');
-
-    if (pageRoot && dir.indexOf(pageRoot) === 0) {
-      let replaceResult = dir.replace(pageRoot, '');
-      if (replaceResult === '') {
-        replaceResult = '/';
-      }
-      return `WORKSPACE${replaceResult}`;
-    }
-    return dir;
-  };
-
   const getShowName = (model: Tensorboard.IModel) => {
-    const formattedDir = formatDir(model.logdir);
+    const formattedDir = props.tensorboardManager.formatDir(model.logdir);
     return `${model.name} - ${formattedDir}`;
   };
 
@@ -325,20 +322,20 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
 
   const getBlankContent = () => {
     if (!ready) {
-      return <Loading title="initializing"></Loading>;
+      return <Loading title="initializing" />;
     } else if (createPending) {
       return (
         <Loading
           title="TensorBoard is initializing"
           desc="This stage may take a long time (the more content in the directory, the longer it will be)"
-        ></Loading>
+        />
       );
     } else if (reloadPending) {
       return (
         <Loading
           title="TensorBoard is reloading"
           desc="This stage may take a long time (the more content in the directory, the longer it will be)"
-        ></Loading>
+        />
       );
     } else {
       return (
@@ -360,7 +357,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
       {ready && (
         <div
           className={classNames('tensorboard-ng-control-layout', {
-            'hide-one': !showNewRow || !showListStatus
+            'hide-one': !(showNewRow && showListStatus)
           })}
         >
           <div className={classNames('tensorboard-ng-control-row', { hide: !showListStatus })}>
@@ -368,11 +365,11 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
               <div className="input-container tensorboard-ng-logdir">
                 <Button
                   className="refresh-dir-btn"
-                  small
+                  small={true}
                   icon="refresh"
                   disabled={currentLoading}
                   onClick={refreshRunning}
-                ></Button>
+                />
                 <ModelSelector
                   className="tb-ng-model-selector"
                   popoverProps={{ minimal: true }}
@@ -388,6 +385,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
                   disabled={currentLoading}
                 >
                   <Button
+                    title={currentTensorBoard ? getShowName(currentTensorBoard) : 'NONE'}
                     className="selector-active-btn"
                     rightIcon="caret-down"
                     text={
@@ -395,16 +393,16 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
                         {currentTensorBoard ? getShowName(currentTensorBoard) : 'NONE'}
                       </span>
                     }
-                    small
+                    small={true}
                   />
                 </ModelSelector>
                 <Button
                   className="refresh-dir-btn"
-                  small
+                  small={true}
                   icon="document-open"
                   disabled={currentLoading}
                   onClick={openInNewTab}
-                ></Button>
+                />
                 {currentTensorBoard && (
                   <p className="reload-tip">
                     reload interval(s): {currentTensorBoard?.reload_interval || 'Never'}
@@ -412,10 +410,10 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
                 )}
               </div>
             </div>
-            <div className="tensorboard-ng-expand"></div>
+            <div className="tensorboard-ng-expand" />
             <div className="tensorboard-ng-ops">
               <Button
-                small
+                small={true}
                 intent="primary"
                 className="tensorboard-ng-op-btn"
                 onClick={reloadTensorBoard}
@@ -424,7 +422,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
                 Reload
               </Button>
               <Button
-                small
+                small={true}
                 intent="danger"
                 disabled={currentLoading}
                 className="tensorboard-ng-op-btn"
@@ -434,7 +432,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
                 Destroy
               </Button>
               <Button
-                small
+                small={true}
                 intent="none"
                 disabled={currentLoading}
                 className="tensorboard-ng-op-btn"
@@ -443,7 +441,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
                 Duplicate
               </Button>
               <Button
-                small
+                small={true}
                 intent="none"
                 disabled={currentLoading}
                 className="tensorboard-ng-op-btn"
@@ -461,7 +459,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
               startTensorBoard={startTensorBoard}
               openDoc={props.openDoc}
             />
-            <div className="tensorboard-ng-expand"></div>
+            <div className="tensorboard-ng-expand" />
           </div>
         </div>
       )}
@@ -472,7 +470,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
             referrerPolicy="no-referrer"
             className={'tensorboard-ng-iframe'}
             src={Tensorboard.getUrl(currentTensorBoard.name)}
-          ></iframe>
+          />
         )}
         {!currentTensorBoard && (
           <div className="tensorboard-ng-iframe-tip">{getBlankContent()}</div>

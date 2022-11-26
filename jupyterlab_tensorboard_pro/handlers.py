@@ -41,6 +41,9 @@ def load_jupyter_server_extension(nb_app):
                 base_url, r"/api/tensorboard_pro"),
                 api_handlers.TbRootHandler),
             (ujoin(
+                base_url, r"/api/tensorboard_pro_static_config"),
+                api_handlers.TbRootConfigHandler),
+            (ujoin(
                 base_url, r"/api/tensorboard_pro/(?P<name>\w+)"),
                 api_handlers.TbInstanceHandler),
             (ujoin(
