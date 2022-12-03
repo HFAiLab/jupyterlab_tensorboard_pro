@@ -74,7 +74,11 @@ setup_args = dict(
     data_files=[
         (
             "etc/jupyter/jupyter_server_config.d",
-            ["jupyter-config/jupyter_server_config.d/jupyterlab_tensorboard_pro.json"]
+            ["jupyter-config/jupyter_lab_server_config.d/jupyterlab_tensorboard_pro.json"]
+        ),
+        (
+            "etc/jupyter/jupyter_notebook_config.d",
+            ["jupyter-config/jupyter_notebook_server_config.d/jupyterlab_tensorboard_pro.json"]
         ),
     ],
     packages=setuptools.find_packages(),
