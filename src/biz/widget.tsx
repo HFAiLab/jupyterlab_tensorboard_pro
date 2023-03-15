@@ -47,11 +47,10 @@ export class TensorboardTabReactWidget extends ReactWidget {
 
     this.addClass('tensorboard-ng-widget');
     this.addClass(TENSORBOARD_CLASS);
-    this.title.label = 'TensorBoard';
     this.title.icon = TENSORBOARD_ICON_CLASS;
     this.title.closable = true;
-    const caption = 'Name: TensorBoard';
-    this.title.caption = caption;
+    this.title.label = 'Tensorboard';
+    this.title.caption = `Name: ${this.title.label}`;
   }
 
   /**
@@ -66,9 +65,9 @@ export class TensorboardTabReactWidget extends ReactWidget {
     this.close();
   };
 
-  protected updateCurrentModel = (model: Tensorboard.IModel): void => {
+  protected updateCurrentModel = (model: Tensorboard.IModel | null): void => {
     this.currentTensorBoardModel = model;
-    this.currentLogDir = model.logdir;
+    this.currentLogDir = model?.logdir || '';
   };
 
   getCWD = (): string => {
@@ -100,9 +99,15 @@ export class TensorboardTabReactWidget extends ReactWidget {
     return this.tensorboardManager.startNew(logdir, refreshInterval, options);
   };
 
+  setWidgetName = (name: string): void => {
+    this.title.label = name || 'Tensorboard';
+    this.title.caption = `Name: ${this.title.label}`;
+  };
+
   render(): JSX.Element {
     return (
       <TensorboardTabReact
+        setWidgetName={this.setWidgetName}
         update={this.update.bind(this)}
         updateCurrentModel={this.updateCurrentModel}
         tensorboardManager={this.tensorboardManager}

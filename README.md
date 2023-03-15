@@ -59,7 +59,7 @@ We can also type `Open TensorBoard` in the JupyterLab shortcut panel (evoked by 
 In the initialization panel, two parameters are provided:
 
 - **Log Dir**: The default is the **relative directory** of the current sidebar when TensorBoard is clicked. You can also manually fill in the corresponding directory. It is recommended to make the directory as detailed as possible. If the directory content is small, the initialization speed will be improved.
-- **Reload Interval**: How often does TensorBoard backend rescan the corresponding directory. This option is set to 120 seconds by default. But it is recommended to disable and use manually Reload for daily use (The continuous scanning of directories by the TensorBoard backend will have some impact on Jupyter's stability and file system).
+- **Reload Interval**: How often does TensorBoard backend rescan the corresponding directory. This option is set to false by default. It is recommended to disable and use manually Reload for daily use (The continuous scanning of directories by the TensorBoard backend will have some impact on Jupyter's stability and file system).
 
 Select the parameters and click Create TensorBoard, and the TensorBoard instance will be created synchronously. At this time, the jupyter backend is **blocking**, please wait for the instance to be created before performing other operations.
 

@@ -57,7 +57,7 @@ pip install jupyterlab-tensorboard-pro
 在初始化面板中，提供了两个参数设置项目：
 
 - **Log Dir**：默认是点击 TensorBoard 时当前侧边栏的目录，也可以手动填写对应目录，这里建议目录尽可能的细化，目录内容比较少的话会提高初始化速度。
-- **Reload Interval**：TensorBoard 多久对对应目录进行一次重新扫描，这个选项是默认是 120s，但是如果不需要建议及时关闭，日常使用选择手动 Reload 即可（设置 Reload Interval 之后，TensorBoard 后端持续扫描目录会对 Jupyter 的稳定性和文件系统都产生一定的影响）。
+- **Reload Interval**：TensorBoard 多久对对应目录进行一次重新扫描，这个选项是默认是关闭的，日常使用选择手动 Reload 即可（设置 Reload Interval 之后，TensorBoard 后端持续扫描目录会对 Jupyter 的稳定性和文件系统都产生一定的影响）。
 
 选择好参数点击 Create TensorBoard，会同步创建 TensorBoard 实例，这个时候 jupyter 后端是**阻塞**的，请等待实例创建好之后再进行其他操作。
 
@@ -132,7 +132,7 @@ jlpm run watch
 
 后端部分可以在设置软链接之后，直接修改 python 文件，重启生效。
 
-打包:
+打包：
 
 ```
 python setup.py bdist_wheel --universal

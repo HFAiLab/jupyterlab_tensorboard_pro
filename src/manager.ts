@@ -10,6 +10,8 @@ import { DEFAULT_REFRESH_INTERVAL } from './consts';
  * A tensorboard manager.
  */
 export class TensorboardManager implements Tensorboard.IManager {
+  getStaticConfigPromise: Promise<void>;
+
   /**
    * Construct a new tensorboard manager.
    */
@@ -22,7 +24,7 @@ export class TensorboardManager implements Tensorboard.IManager {
       }
       this._refreshRunning();
     }, 10000);
-    this._getStaticConfig();
+    this.getStaticConfigPromise = this._getStaticConfig();
   }
 
   /**
@@ -122,7 +124,7 @@ export class TensorboardManager implements Tensorboard.IManager {
   /**
    * Shut down a tensorboard by name.
    */
-  shutdown(name: string): Promise<void> {
+  async shutdown(name: string): Promise<void> {
     const index = ArrayExt.findFirstIndex(this._models, value => value.name === name);
     if (index === -1) {
       return;

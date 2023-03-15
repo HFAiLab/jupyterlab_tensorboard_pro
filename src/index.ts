@@ -38,14 +38,14 @@ const extension: JupyterFrontEndPlugin<IWidgetTracker<MainAreaWidget<Tensorboard
 
 export default extension;
 
-function activate(
+async function activate(
   app: JupyterFrontEnd,
   palette: ICommandPalette,
   browserFactory: IFileBrowserFactory,
   launcher: ILauncher | null,
   menu: IMainMenu | null,
   runningSessionManagers: IRunningSessionManagers | null
-): WidgetTracker<MainAreaWidget<TensorboardTabReactWidget>> {
+): Promise<WidgetTracker<MainAreaWidget<TensorboardTabReactWidget>>> {
   const manager = new TensorboardManager();
   const namespace = 'tensorboard';
   const tracker = new WidgetTracker<MainAreaWidget<TensorboardTabReactWidget>>({
@@ -55,7 +55,7 @@ function activate(
   addCommands(app, manager, tracker, browserFactory, launcher, menu);
 
   if (runningSessionManagers) {
-    addRunningSessionManager(runningSessionManagers, app, manager);
+    await addRunningSessionManager(runningSessionManagers, app, manager);
   }
 
   palette.addItem({ command: CommandIDs.inputDirect, category: 'Tensorboard' });
@@ -69,17 +69,12 @@ function addRunningSessionManager(
   app: JupyterFrontEnd,
   manager: TensorboardManager
 ) {
-  managers.add({
-    name: 'Tensorboard',
-    running: () => toArray(manager.running()).map(model => new RunningTensorboard(model)),
-    shutdownAll: () => manager.shutdownAll(),
-    refreshRunning: () => manager.refreshRunning(),
-    runningChanged: manager.runningChanged
-  });
-
   class RunningTensorboard implements IRunningSessions.IRunningItem {
-    constructor(model: Tensorboard.IModel) {
+    manager: TensorboardManager;
+
+    constructor(model: Tensorboard.IModel, manager: TensorboardManager) {
       this._model = model;
+      this.manager = manager;
     }
     open() {
       app.commands.execute(CommandIDs.open, { modelName: this._model.name });
@@ -88,7 +83,7 @@ function addRunningSessionManager(
       return tensorboardIcon;
     }
     label() {
-      return `tensorboards/${this._model.name}`;
+      return `${this._model.name}:${this.manager.formatDir(this._model.logdir)}`;
     }
     shutdown() {
       app.commands.execute(CommandIDs.close, { tb: this._model });
@@ -97,6 +92,17 @@ function addRunningSessionManager(
 
     private _model: Tensorboard.IModel;
   }
+
+  return manager.getStaticConfigPromise.then(() => {
+    managers.add({
+      name: 'Tensorboard',
+      running: () =>
+        toArray(manager.running()).map(model => new RunningTensorboard(model, manager)),
+      shutdownAll: () => manager.shutdownAll(),
+      refreshRunning: () => manager.refreshRunning(),
+      runningChanged: manager.runningChanged
+    });
+  });
 }
 
 /**
@@ -120,16 +126,18 @@ export function addCommands(
       const copy = args['copy'];
       const currentCWD = browserFactory.defaultBrowser.model.path;
 
-      let widget: MainAreaWidget<TensorboardTabReactWidget> | null = null;
+      let widget: MainAreaWidget<TensorboardTabReactWidget> | null | undefined = null;
 
       // step1: find an opened widget
       if (!modelName) {
         widget = tracker.find(widget => {
-          return manager.formatDir(widget.content.currentLogDir) === manager.formatDir(currentCWD);
+          return (
+            manager.formatDir(widget.content.currentLogDir || '') === manager.formatDir(currentCWD)
+          );
         });
       } else if (!copy) {
         widget = tracker.find(value => {
-          return value.content.currentTensorBoardModel.name === modelName;
+          return value.content.currentTensorBoardModel?.name === modelName;
         });
       }
       // default we have only one tensorboard

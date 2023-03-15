@@ -23,7 +23,7 @@ export interface TensorboardCreatorProps {
 const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
   const [logDir, setLogDir] = useState(props.getCWD());
   const [reloadInterval, setReloadInterval] = useState(DEFAULT_REFRESH_INTERVAL);
-  const [enableReloadInterval, setEnableReloadInterval] = useState(true);
+  const [enableReloadInterval, setEnableReloadInterval] = useState(false);
 
   return (
     <div className="tensorboard-ng-creator">
@@ -99,6 +99,7 @@ const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
 };
 
 export interface TensorboardTabReactProps {
+  setWidgetName?: (name: string) => void;
   createdModelName?: string;
   tensorboardManager: TensorboardManager;
   closeWidget: () => void;
@@ -106,7 +107,7 @@ export interface TensorboardTabReactProps {
   openTensorBoard: (modelName: string, copy: boolean) => void;
   openDoc: () => void;
   update: () => void;
-  updateCurrentModel: (model: Tensorboard.IModel) => void;
+  updateCurrentModel: (model: Tensorboard.IModel | null) => void;
   startNew: (
     logdir: string,
     refreshInterval: number,
@@ -137,7 +138,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
 
   const [currentTensorBoard, setCurrentTensorBoard] = useState<Tensorboard.IModel | null>(null);
   const currentTensorBoardRef = useRef(currentTensorBoard);
-  const updateCurrentTensorBoard = (model: Tensorboard.IModel) => {
+  const updateCurrentTensorBoard = (model: Tensorboard.IModel | null) => {
     props.updateCurrentModel(model);
     setCurrentTensorBoard(model);
     currentTensorBoardRef.current = model;
@@ -167,7 +168,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
       if (readyRef.current) {
         // 如果不是第一次了
         if (currentTensorBoardRef.current) {
-          if (!modelList.find(model => model.name === currentTensorBoardRef.current.name)) {
+          if (!modelList.find(model => model.name === currentTensorBoardRef.current!.name)) {
             setNotActiveError(true);
           }
         } else {
@@ -180,17 +181,15 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
 
       const model = props.createdModelName
         ? modelList.find(model => model.name === props.createdModelName)
-        : modelList[0];
+        : null;
 
       if (model) {
-        if (
-          props.tensorboardManager.formatDir(model.logdir) !==
-          props.tensorboardManager.formatDir(props.getCWD())
-        ) {
-          setShowNewRow(true);
-        }
+        // if createdModelName exist，maybe from Sidebar kernels tab
         updateCurrentTensorBoard(model);
         setShowListStatus(true);
+        if (props.setWidgetName) {
+          props.setWidgetName(props.tensorboardManager.formatDir(model.logdir));
+        }
       } else {
         setShowNewRow(true);
         setShowListStatus(false);
@@ -217,6 +216,9 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
             body: 'Existing tensorBoard for the logDir will be reused directly',
             buttons: [Dialog.okButton()]
           });
+        }
+        if (props.setWidgetName) {
+          props.setWidgetName(props.tensorboardManager.formatDir(tb.model.logdir));
         }
         updateCurrentTensorBoard(tb.model);
         updateCreatePending(false);
@@ -280,6 +282,9 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
   };
 
   const destroyTensorBoard = () => {
+    if (!currentTensorBoard) {
+      return;
+    }
     props.tensorboardManager.shutdown(currentTensorBoard.name).then(res => {
       props.closeWidget();
     });
@@ -298,8 +303,11 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
   };
 
   const changeModel = (model: Tensorboard.IModel) => {
-    if (currentTensorBoard.name === model.name) {
+    if (currentTensorBoard?.name === model.name) {
       return;
+    }
+    if (props.setWidgetName) {
+      props.setWidgetName(props.tensorboardManager.formatDir(model.logdir));
     }
     setCurrentTensorBoard(model);
   };
@@ -309,6 +317,9 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
   };
 
   const openInNewTab = () => {
+    if (!currentTensorBoard) {
+      return;
+    }
     window.open(Tensorboard.getUrl(currentTensorBoard.name));
   };
 
@@ -340,7 +351,9 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
     } else {
       return (
         <div className="common-tip">
-          <p className="title">No instance yet, please create a new TensorBoard</p>
+          <p className="title">
+            No instance for current directory yet, please create a new TensorBoard
+          </p>
           <p className="desc">
             <i>
               If the selected log directory has too much content, tensorboard initialization may

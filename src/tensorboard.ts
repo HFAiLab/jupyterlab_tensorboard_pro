@@ -137,7 +137,7 @@ export namespace Tensorboard {
     /**
      * The reload interval of the tensorboard.
      */
-    readonly reload_interval?: number;
+    readonly reload_interval: number;
 
     /**
      * The last reload time of the tensorboard.
@@ -209,7 +209,7 @@ export class DefaultTensorboard implements Tensorboard.ITensorboard {
       name: this._name,
       logdir: this._logdir,
       reload_time: this._lastReload,
-      reload_interval: this._reloadInterval
+      reload_interval: this._reloadInterval || 0
     };
   }
 
@@ -310,8 +310,8 @@ export namespace DefaultTensorboard {
   export function getStaticConfig(
     settings?: ServerConnection.ISettings
   ): Promise<Tensorboard.StaticConfig> {
-    const statis_config_url = Private.getTensorboardStaticConfigUrl(settings.baseUrl);
-    return ServerConnection.makeRequest(statis_config_url, {}, settings)
+    const statis_config_url = Private.getTensorboardStaticConfigUrl(settings!.baseUrl);
+    return ServerConnection.makeRequest(statis_config_url, {}, settings!)
       .then(response => {
         if (response.status !== 200) {
           throw new ServerConnection.ResponseError(response);
