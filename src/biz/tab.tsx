@@ -188,7 +188,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
         updateCurrentTensorBoard(model);
         setShowListStatus(true);
         if (props.setWidgetName) {
-          props.setWidgetName(props.tensorboardManager.formatDir(model.logdir));
+          props.setWidgetName(`${model.name}:` + props.tensorboardManager.formatDir(model.logdir));
         }
       } else {
         setShowNewRow(true);
@@ -218,7 +218,9 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
           });
         }
         if (props.setWidgetName) {
-          props.setWidgetName(props.tensorboardManager.formatDir(tb.model.logdir));
+          props.setWidgetName(
+            `${tb.model.name}:` + props.tensorboardManager.formatDir(tb.model.logdir)
+          );
         }
         updateCurrentTensorBoard(tb.model);
         updateCreatePending(false);
@@ -307,7 +309,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
       return;
     }
     if (props.setWidgetName) {
-      props.setWidgetName(props.tensorboardManager.formatDir(model.logdir));
+      props.setWidgetName(`${model.name}:` + props.tensorboardManager.formatDir(model.logdir));
     }
     setCurrentTensorBoard(model);
   };
