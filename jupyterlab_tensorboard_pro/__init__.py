@@ -2,7 +2,8 @@
 
 from .handlers import load_jupyter_server_extension   # noqa
 
-__version__ = "0.6.1"
+__version__ = "0.7.0"
+
 
 def _jupyter_nbextension_paths():
     name = __name__
@@ -13,6 +14,7 @@ def _jupyter_nbextension_paths():
         src=src,
         dest=name,
         require="%s/%s" % (name, section))]
+
 
 def _jupyter_server_extension_paths():
     return [{
