@@ -55,6 +55,9 @@
       &.interval-switch {
         margin-bottom: 0;
       }
+      &.multi-log-switch {
+        margin-bottom: 0;
+      }
     }
     &:not(:last-child) {
       margin-right: 10px;
@@ -67,7 +70,11 @@
     margin-right: 5px;
     margin-left: 5px;
   }
-  .reload-tip {
+  .multi-log-tip {
+    margin-right: 5px;
+  }
+  .reload-tip,
+  .multi-log-tip {
     margin-bottom: 0;
     margin-left: 5px;
     font-size: 14px;
@@ -131,7 +138,7 @@
         margin-bottom: 10px;
         font-weight: bold; // 700
       }
-    
+
       &.desc {
         margin: auto;
         color: var(--jp-ui-font-color2);
@@ -210,7 +217,5 @@
     100% {
       transform: rotate(360deg);
     }
-  } 
+  }
 }
-
-

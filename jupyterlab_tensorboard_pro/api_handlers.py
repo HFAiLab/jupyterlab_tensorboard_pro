@@ -9,10 +9,12 @@ from notebook.base.handlers import APIHandler
 from .handlers import notebook_dir
 
 
-def _trim_notebook_dir(dir):
+def _trim_notebook_dir(dir, enable_multi_log):
     if dir.startswith("s3://"):
         return dir
-    if not dir.startswith("/"):
+    if enable_multi_log:
+        return dir
+    if ':' not in dir and not dir.startswith("/"):
         return os.path.join(
             "<notebook_dir>", os.path.relpath(dir, notebook_dir)
         )
@@ -37,7 +39,8 @@ class TbRootHandler(APIHandler):
             {
                 'name': entry.name,
                 'reload_interval': entry.reload_interval,
-                'logdir': _trim_notebook_dir(entry.logdir),
+                'enable_multi_log': entry.enable_multi_log,
+                'logdir': _trim_notebook_dir(entry.logdir, entry.enable_multi_log),
             } for entry in
             self.settings["tensorboard_manager"].values()
         ]
@@ -47,15 +50,17 @@ class TbRootHandler(APIHandler):
     def post(self):
         data = self.get_json_body()
         reload_interval = data.get("reload_interval", None)
+        enable_multi_log = data.get("enable_multi_log", False)
         entry = (
             self.settings["tensorboard_manager"]
-            .new_instance(data["logdir"], reload_interval=reload_interval)
+            .new_instance(data["logdir"], reload_interval=reload_interval, enable_multi_log=enable_multi_log)
         )
         self.finish(json.dumps({
-                'name': entry.name,
-                'reload_interval': entry.reload_interval,
-                'logdir':  _trim_notebook_dir(entry.logdir),
-                }))
+            'name': entry.name,
+            'reload_interval': entry.reload_interval,
+            'enable_multi_log': entry.enable_multi_log,
+            'logdir':  _trim_notebook_dir(entry.logdir, entry.enable_multi_log),
+        }))
 
 
 class TbInstanceHandler(APIHandler):
@@ -70,8 +75,9 @@ class TbInstanceHandler(APIHandler):
             self.finish(json.dumps({
                 'name': entry.name,
                 'reload_interval': entry.reload_interval,
-                'logdir':  _trim_notebook_dir(entry.logdir),
-                }))
+                'enable_multi_log': entry.enable_multi_log,
+                'logdir':  _trim_notebook_dir(entry.logdir, entry.enable_multi_log),
+            }))
         else:
             raise web.HTTPError(
                 404, "TensorBoard instance not found: %r" % name)

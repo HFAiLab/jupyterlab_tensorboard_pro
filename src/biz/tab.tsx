@@ -17,13 +17,14 @@ export interface TensorboardCreatorProps {
   disable: boolean;
   getCWD: () => string;
   openDoc: () => void;
-  startTensorBoard: (logDir: string, reloadInterval: number) => void;
+  startTensorBoard: (logDir: string, reloadInterval: number, enableMultiLog: boolean) => void;
 }
 
 const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
   const [logDir, setLogDir] = useState(props.getCWD());
   const [reloadInterval, setReloadInterval] = useState(DEFAULT_REFRESH_INTERVAL);
   const [enableReloadInterval, setEnableReloadInterval] = useState(false);
+  const [enableMultiLog, setEnableMultiLog] = useState(false);
 
   return (
     <div className="tensorboard-ng-creator">
@@ -39,10 +40,25 @@ const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
             value={logDir}
             onChange={e => {
               setLogDir(e.target.value);
+              if (e.target.value.includes(',')) {
+                setEnableMultiLog(true);
+              }
             }}
           />
         </div>
         <div className="input-container tensorboard-ng-logdir">
+          <Switch
+            className="multi-log-switch"
+            checked={enableMultiLog}
+            onChange={() => {
+              setEnableMultiLog(!enableMultiLog);
+            }}
+            labelElement={
+              <strong title="Use `--logdir_spec` instead of `--logdir` to support multi log dirs, This flag is discouraged and can usually be avoided. for finer-grained control, prefer using a symlink tree. Some features may not work when using `--logdir_spec` instead of `--logdir`">
+                Multi LogDir
+              </strong>
+            }
+          />
           <Switch
             className="interval-switch"
             checked={enableReloadInterval}
@@ -51,7 +67,7 @@ const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
             }}
             labelElement={
               <strong title="Setting reload interval may cause additional burden on the jupyter backend">
-                Enable Reload Interval
+                Reload Interval
               </strong>
             }
           />
@@ -76,7 +92,11 @@ const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
           intent="warning"
           className="tensorboard-ng-op-btn"
           onClick={() => {
-            props.startTensorBoard(logDir, enableReloadInterval ? reloadInterval : 0);
+            props.startTensorBoard(
+              logDir,
+              enableReloadInterval ? reloadInterval : 0,
+              enableMultiLog
+            );
           }}
           disabled={props.disable}
         >
@@ -111,6 +131,7 @@ export interface TensorboardTabReactProps {
   startNew: (
     logdir: string,
     refreshInterval: number,
+    enableMultiLog: boolean,
     options?: Tensorboard.IOptions
   ) => Promise<Tensorboard.ITensorboard>;
 }
@@ -198,7 +219,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
     });
   };
 
-  const startTensorBoard = (logDir: string, reloadInterval: number) => {
+  const startTensorBoard = (logDir: string, reloadInterval: number, enableMultiLog: boolean) => {
     if (Number.isNaN(reloadInterval) || reloadInterval < 0) {
       return showDialog({
         title: 'Param Check Failed',
@@ -209,7 +230,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
     updateCreatePending(true);
     const currentName = currentTensorBoard?.name;
     props
-      .startNew(logDir, reloadInterval)
+      .startNew(logDir, reloadInterval, enableMultiLog)
       .then(tb => {
         if (currentName === tb.model.name) {
           showDialog({
@@ -250,6 +271,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
         ? currentTensorBoard.reload_interval
         : DEFAULT_REFRESH_INTERVAL;
     const currentLogDir = currentTensorBoard.logdir;
+    const enableMultiLog = currentTensorBoard.enable_multi_log;
 
     const errorCallback = (e: any) => {
       showDialog({
@@ -265,7 +287,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
         .shutdown(currentTensorBoard.name)
         .then(res => {
           props.tensorboardManager
-            .startNew(currentLogDir, reloadInterval)
+            .startNew(currentLogDir, reloadInterval, enableMultiLog)
             .then(res => {
               refreshRunning();
               updateReloadPending(false);
@@ -418,6 +440,9 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
                   disabled={currentLoading}
                   onClick={openInNewTab}
                 />
+                {currentTensorBoard && currentTensorBoard.enable_multi_log && (
+                  <p className="multi-log-tip">Multi LogDir</p>
+                )}
                 {currentTensorBoard && (
                   <p className="reload-tip">
                     reload interval(s): {currentTensorBoard?.reload_interval || 'Never'}

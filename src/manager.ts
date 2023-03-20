@@ -4,7 +4,7 @@ import { Signal, ISignal } from '@lumino/signaling';
 import { JSONExt } from '@lumino/coreutils';
 import { Tensorboard } from './tensorboard';
 import { ServerConnection } from '@jupyterlab/services';
-import { DEFAULT_REFRESH_INTERVAL } from './consts';
+import { DEFAULT_ENABLE_MULTI_LOG, DEFAULT_REFRESH_INTERVAL } from './consts';
 
 /**
  * A tensorboard manager.
@@ -85,6 +85,19 @@ export class TensorboardManager implements Tensorboard.IManager {
   formatDir(dir: string): string {
     const pageRoot = this._statusConfig?.notebook_dir;
 
+    if (dir.includes(',')) {
+      const dirs = dir.split(',');
+      return dirs
+        .map(dir => {
+          if (dir.includes(':')) {
+            return `${dir.split(':')![0]}:${this.formatDir(dir.split(':')![1])}`;
+          } else {
+            return this.formatDir(dir);
+          }
+        })
+        .join(',');
+    }
+
     if (pageRoot && dir.indexOf(pageRoot) === 0) {
       let replaceResult = dir.replace(pageRoot, '');
       if (replaceResult === '') {
@@ -111,14 +124,18 @@ export class TensorboardManager implements Tensorboard.IManager {
   startNew(
     logdir: string,
     refreshInterval: number = DEFAULT_REFRESH_INTERVAL,
+    enableMultiLog: boolean = DEFAULT_ENABLE_MULTI_LOG,
     options?: Tensorboard.IOptions
   ): Promise<Tensorboard.ITensorboard> {
-    return Tensorboard.startNew(logdir, refreshInterval, this._getOptions(options)).then(
-      tensorboard => {
-        this._onStarted(tensorboard);
-        return tensorboard;
-      }
-    );
+    return Tensorboard.startNew(
+      logdir,
+      refreshInterval,
+      enableMultiLog,
+      this._getOptions(options)
+    ).then(tensorboard => {
+      this._onStarted(tensorboard);
+      return tensorboard;
+    });
   }
 
   /**
