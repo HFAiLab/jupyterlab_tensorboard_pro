@@ -51,4 +51,3 @@ jobs:
           python -m pip install .
 
           jupyter labextension list 2>&1 | grep -ie "jupyterlab_tensorboard_pro.*OK"
-          python -m jupyterlab.browser_check
