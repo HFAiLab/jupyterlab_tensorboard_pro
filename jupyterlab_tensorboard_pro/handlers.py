@@ -57,20 +57,20 @@ def load_jupyter_server_extension(nb_app):
 
 class TensorboardHandler(IPythonHandler):
 
-    def _impl(self, name, path):
+    async def _impl(self, name, path):
 
         self.request.path = path
 
         manager = self.settings["tensorboard_manager"]
         if name in manager:
             tb_app = manager[name].tb_app
-            WSGIContainer(tb_app)(self.request)
+            wsgi_app = WSGIContainer(tb_app)
+            await wsgi_app.handle_request(self.request)
         else:
             raise web.HTTPError(404)
 
     @web.authenticated
-    def get(self, name, path):
-
+    async def get(self, name, path):
         if path == "":
             uri = self.request.path + "/"
             if self.request.query:
@@ -78,15 +78,15 @@ class TensorboardHandler(IPythonHandler):
             self.redirect(uri, permanent=True)
             return
 
-        self._impl(name, path)
+        await self._impl(name, path)
 
     @web.authenticated
-    def post(self, name, path):
+    async def post(self, name, path):
 
         if path == "":
             raise web.HTTPError(403)
 
-        self._impl(name, path)
+        await self._impl(name, path)
 
     def check_xsrf_cookie(self):
         """Expand XSRF check exceptions for POST requests.
@@ -134,11 +134,12 @@ class TensorboardHandler(IPythonHandler):
 class TbFontHandler(IPythonHandler):
 
     @web.authenticated
-    def get(self):
+    async def get(self):
         manager = self.settings["tensorboard_manager"]
         if "1" in manager:
             tb_app = manager["1"].tb_app
-            WSGIContainer(tb_app)(self.request)
+            wsgi_app = WSGIContainer(tb_app)
+            await wsgi_app.handle_request(self.request)
         else:
             raise web.HTTPError(404)
 
