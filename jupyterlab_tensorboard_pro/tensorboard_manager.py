@@ -48,13 +48,17 @@ try:
         # TensorBoard 1.10 or above series
         from tensorboard import program
 
-        def create_tb_app(logdir, reload_interval, purge_orphaned_data, enable_multi_log):
+        def create_tb_app(logdir, reload_interval, purge_orphaned_data, enable_multi_log, additional_args):
             argv = [
                 "",
                 "--logdir", logdir,
                 "--reload_interval", str(reload_interval),
                 "--purge_orphaned_data", str(purge_orphaned_data),
             ]
+
+            # example: "--samples_per_plugin", "images=1"
+            additional_args_arr = additional_args.split()
+            argv += additional_args_arr
 
             if enable_multi_log:
                 argv[1] = "--logdir_spec"
@@ -75,15 +79,15 @@ try:
                     return application.TensorBoardWSGIApp(flags, plugin_loaders, ingester.data_provider,
                                                           assets_zip_provider, ingester.deprecated_multiplexer)
 
-            return manager.add_instance(logdir, reload_interval, enable_multi_log, standard_tensorboard_wsgi(
+            return manager.add_instance(logdir, reload_interval, enable_multi_log, additional_args, standard_tensorboard_wsgi(
                 tensorboard.flags,
                 tensorboard.plugin_loaders,
                 tensorboard.assets_zip_provider))
     else:
         logging.debug("TensorBoard 0.4.x series detected")
 
-        def create_tb_app(logdir, reload_interval, purge_orphaned_data, enable_multi_log):
-            return manager.add_instance(logdir, reload_interval,  enable_multi_log, application.standard_tensorboard_wsgi(
+        def create_tb_app(logdir, reload_interval, purge_orphaned_data, enable_multi_log, additional_args):
+            return manager.add_instance(logdir, reload_interval,  enable_multi_log, additional_args, application.standard_tensorboard_wsgi(
                 logdir=logdir, reload_interval=reload_interval,
                 purge_orphaned_data=purge_orphaned_data,
                 plugins=default.get_plugins()))
@@ -115,7 +119,7 @@ except ImportError:
         profile_plugin.ProfilePlugin,
     ]
 
-    def create_tb_app(logdir, reload_interval, purge_orphaned_data, enable_multi_log):
+    def create_tb_app(logdir, reload_interval, purge_orphaned_data, enable_multi_log, additional_args):
         return application.standard_tensorboard_wsgi(
             logdir=logdir, reload_interval=reload_interval,
             purge_orphaned_data=purge_orphaned_data,
@@ -125,7 +129,7 @@ except ImportError:
 from .handlers import notebook_dir   # noqa
 
 TensorBoardInstance = namedtuple(
-    'TensorBoardInstance', ['name', 'logdir', 'reload_interval', 'enable_multi_log', 'tb_app'])
+    'TensorBoardInstance', ['name', 'logdir', 'reload_interval', 'enable_multi_log', 'additional_args', 'tb_app'])
 
 
 class TensorboardManger(dict):
@@ -164,7 +168,7 @@ class TensorboardManger(dict):
 
         return ','.join(map(format_dir, dirs))
 
-    def new_instance(self, logdir, reload_interval, enable_multi_log):
+    def new_instance(self, logdir, reload_interval, enable_multi_log, additional_args):
         if not enable_multi_log and not os.path.isabs(logdir) and notebook_dir and not logdir.startswith("s3://"):
             logdir = os.path.join(notebook_dir, logdir)
 
@@ -175,14 +179,14 @@ class TensorboardManger(dict):
                 logdir = self.format_multi_dir_path(logdir)
             create_tb_app(
                 logdir=logdir, reload_interval=reload_interval,
-                purge_orphaned_data=purge_orphaned_data, enable_multi_log=enable_multi_log)
+                purge_orphaned_data=purge_orphaned_data, enable_multi_log=enable_multi_log, additional_args=additional_args)
 
         return self._logdir_dict[logdir]
 
-    def add_instance(self, logdir, reload_interval, enable_multi_log, tb_application):
+    def add_instance(self, logdir, reload_interval, enable_multi_log, additional_args, tb_application):
         name = self._next_available_name()
         instance = TensorBoardInstance(
-            name, logdir, reload_interval, enable_multi_log, tb_application)
+            name, logdir, reload_interval, enable_multi_log, additional_args, tb_application)
         self[name] = instance
         self._logdir_dict[logdir] = instance
         return tb_application

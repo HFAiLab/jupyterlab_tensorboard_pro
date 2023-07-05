@@ -3,6 +3,14 @@
   width: 100%;
   flex-direction: row;
   align-items: center;
+
+  .additional-config-input {
+    width: 120px;
+    margin-left: 5px;
+    &.with-content {
+      flex: 3;
+    }
+  }
 }
 
 .tensorboard-ng-control-layout {
@@ -57,6 +65,7 @@
       }
       &.multi-log-switch {
         margin-bottom: 0;
+        margin-right: 15px;
       }
     }
     &:not(:last-child) {
@@ -78,6 +87,15 @@
     margin-bottom: 0;
     margin-left: 5px;
     font-size: 14px;
+  }
+  .custom-args-tip {
+    margin-left: 10px;
+    color: var(--jp-ui-font-color3);
+    max-width: 200px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 

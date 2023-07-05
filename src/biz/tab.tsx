@@ -12,17 +12,24 @@ import { Loading } from './loading';
 import { Tensorboard } from '../tensorboard';
 import { TensorboardManager } from '../manager';
 import { DEFAULT_REFRESH_INTERVAL } from '../consts';
+import { copyToClipboard } from '../utils/copy';
 
 export interface TensorboardCreatorProps {
   disable: boolean;
   getCWD: () => string;
   openDoc: () => void;
-  startTensorBoard: (logDir: string, reloadInterval: number, enableMultiLog: boolean) => void;
+  startTensorBoard: (
+    logDir: string,
+    reloadInterval: number,
+    enableMultiLog: boolean,
+    additionalArgs: string
+  ) => void;
 }
 
 const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
   const [logDir, setLogDir] = useState(props.getCWD());
   const [reloadInterval, setReloadInterval] = useState(DEFAULT_REFRESH_INTERVAL);
+  const [additionalArgs, setAdditionalArgs] = useState('');
   const [enableReloadInterval, setEnableReloadInterval] = useState(false);
   const [enableMultiLog, setEnableMultiLog] = useState(false);
 
@@ -86,6 +93,17 @@ const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
           )}
         </div>
       </div>
+      <InputGroup
+        className={classNames('additional-config-input', {
+          'with-content': !!additionalArgs.length
+        })}
+        small={true}
+        placeholder="Custom Args..."
+        value={additionalArgs}
+        onChange={e => {
+          setAdditionalArgs(e.target.value);
+        }}
+      />
       <div className="tensorboard-ng-ops create">
         <Button
           small={true}
@@ -95,7 +113,8 @@ const TensorboardCreator = (props: TensorboardCreatorProps): JSX.Element => {
             props.startTensorBoard(
               logDir,
               enableReloadInterval ? reloadInterval : 0,
-              enableMultiLog
+              enableMultiLog,
+              additionalArgs
             );
           }}
           disabled={props.disable}
@@ -132,6 +151,7 @@ export interface TensorboardTabReactProps {
     logdir: string,
     refreshInterval: number,
     enableMultiLog: boolean,
+    additionalArgs: string,
     options?: Tensorboard.IOptions
   ) => Promise<Tensorboard.ITensorboard>;
 }
@@ -219,7 +239,12 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
     });
   };
 
-  const startTensorBoard = (logDir: string, reloadInterval: number, enableMultiLog: boolean) => {
+  const startTensorBoard = (
+    logDir: string,
+    reloadInterval: number,
+    enableMultiLog: boolean,
+    additionalArgs: string
+  ) => {
     if (Number.isNaN(reloadInterval) || reloadInterval < 0) {
       return showDialog({
         title: 'Param Check Failed',
@@ -230,7 +255,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
     updateCreatePending(true);
     const currentName = currentTensorBoard?.name;
     props
-      .startNew(logDir, reloadInterval, enableMultiLog)
+      .startNew(logDir, reloadInterval, enableMultiLog, additionalArgs)
       .then(tb => {
         if (currentName === tb.model.name) {
           showDialog({
@@ -251,10 +276,27 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
         setShowNewRow(false);
       })
       .catch(e => {
-        showDialog({
-          body: 'Start TensorBoard internal error',
-          buttons: [Dialog.okButton()]
-        });
+        updateCreatePending(false);
+
+        const getMessage = () =>
+          e.response.json().then((json: any) => {
+            return json.message as string;
+          });
+        const defaultMessage = 'Start TensorBoard internal error';
+
+        getMessage()
+          .then((msg: string) => {
+            showDialog({
+              body: msg || defaultMessage,
+              buttons: [Dialog.okButton()]
+            });
+          })
+          .catch(() => {
+            showDialog({
+              body: defaultMessage,
+              buttons: [Dialog.okButton()]
+            });
+          });
       });
   };
 
@@ -272,6 +314,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
         : DEFAULT_REFRESH_INTERVAL;
     const currentLogDir = currentTensorBoard.logdir;
     const enableMultiLog = currentTensorBoard.enable_multi_log;
+    const additionalArgs = currentTensorBoard.additional_args;
 
     const errorCallback = (e: any) => {
       showDialog({
@@ -287,7 +330,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
         .shutdown(currentTensorBoard.name)
         .then(res => {
           props.tensorboardManager
-            .startNew(currentLogDir, reloadInterval, enableMultiLog)
+            .startNew(currentLogDir, reloadInterval, enableMultiLog, additionalArgs)
             .then(res => {
               refreshRunning();
               updateReloadPending(false);
@@ -447,6 +490,21 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
                   <p className="reload-tip">
                     reload interval(s): {currentTensorBoard?.reload_interval || 'Never'}
                   </p>
+                )}
+                {currentTensorBoard?.additional_args && (
+                  <>
+                    <p title={currentTensorBoard?.additional_args} className="custom-args-tip">
+                      {currentTensorBoard?.additional_args}
+                    </p>
+                    <Button
+                      small={true}
+                      minimal
+                      icon="duplicate"
+                      onClick={() => {
+                        copyToClipboard(currentTensorBoard?.additional_args);
+                      }}
+                    />
+                  </>
                 )}
               </div>
             </div>

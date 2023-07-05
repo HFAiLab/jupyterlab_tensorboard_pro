@@ -121,21 +121,22 @@ export class TensorboardManager implements Tensorboard.IManager {
    *
    * @returns A promise that resolves with the tensorboard instance.
    */
-  startNew(
+  async startNew(
     logdir: string,
     refreshInterval: number = DEFAULT_REFRESH_INTERVAL,
     enableMultiLog: boolean = DEFAULT_ENABLE_MULTI_LOG,
+    additionalArgs = '',
     options?: Tensorboard.IOptions
   ): Promise<Tensorboard.ITensorboard> {
-    return Tensorboard.startNew(
+    const tensorboard = await Tensorboard.startNew(
       logdir,
       refreshInterval,
       enableMultiLog,
+      additionalArgs,
       this._getOptions(options)
-    ).then(tensorboard => {
-      this._onStarted(tensorboard);
-      return tensorboard;
-    });
+    );
+    this._onStarted(tensorboard);
+    return tensorboard;
   }
 
   /**

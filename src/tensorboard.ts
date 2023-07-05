@@ -62,9 +62,16 @@ export namespace Tensorboard {
     logdir: string,
     refreshInterval: number,
     enableMultiLog: boolean,
+    additionalArgs: string,
     options?: IOptions
   ): Promise<ITensorboard> {
-    return DefaultTensorboard.startNew(logdir, refreshInterval, enableMultiLog, options);
+    return DefaultTensorboard.startNew(
+      logdir,
+      refreshInterval,
+      enableMultiLog,
+      additionalArgs,
+      options
+    );
   }
 
   export function getStaticConfig(settings?: ServerConnection.ISettings): Promise<StaticConfig> {
@@ -149,6 +156,11 @@ export namespace Tensorboard {
      * Whether to support multiple log parameters to be passed in, the `logdir_spec` of tensorboard will actually be used internally
      */
     readonly enable_multi_log: boolean;
+
+    /**
+     * additional args to tensorboard
+     */
+    readonly additional_args: string;
   }
 
   export interface StaticConfig extends JSONObject {
@@ -175,6 +187,7 @@ export namespace Tensorboard {
       logdir: string,
       refreshInterval: number,
       enableMultiLog: boolean,
+      additionalArgs: string,
       options?: IOptions
     ): Promise<ITensorboard>;
 
@@ -196,6 +209,7 @@ export class DefaultTensorboard implements Tensorboard.ITensorboard {
     lastReload: string,
     reloadInterval: number | undefined,
     enableMultiLog: boolean | undefined,
+    additionalArgs: string | undefined,
     options: Tensorboard.IOptions = {}
   ) {
     this._name = name;
@@ -203,6 +217,7 @@ export class DefaultTensorboard implements Tensorboard.ITensorboard {
     this._lastReload = lastReload;
     this._reloadInterval = reloadInterval;
     this._enableMultiLog = Boolean(enableMultiLog);
+    this._additionalArgs = additionalArgs || '';
     this.serverSettings = options.serverSettings || ServerConnection.makeSettings();
     this._url = Private.getTensorboardInstanceUrl(this.serverSettings.baseUrl, this._name);
   }
@@ -223,7 +238,8 @@ export class DefaultTensorboard implements Tensorboard.ITensorboard {
       logdir: this._logdir,
       reload_time: this._lastReload,
       reload_interval: this._reloadInterval || 0,
-      enable_multi_log: this._enableMultiLog || false
+      enable_multi_log: this._enableMultiLog || false,
+      additional_args: this._additionalArgs || ''
     };
   }
 
@@ -275,6 +291,7 @@ export class DefaultTensorboard implements Tensorboard.ITensorboard {
   private _lastReload: string;
   private _reloadInterval: number | undefined;
   private _enableMultiLog: boolean;
+  private _additionalArgs: string;
   private _terminated = new Signal<this, void>(this);
 }
 
@@ -293,6 +310,7 @@ export namespace DefaultTensorboard {
     logdir: string,
     refreshInterval: number,
     enableMultiLog: boolean,
+    additionalArgs: string,
     options: Tensorboard.IOptions = {}
   ): Promise<Tensorboard.ITensorboard> {
     const serverSettings = options.serverSettings || ServerConnection.makeSettings();
@@ -303,7 +321,8 @@ export namespace DefaultTensorboard {
     const data = JSON.stringify({
       logdir: logdir,
       reload_interval: refreshInterval,
-      enable_multi_log: enableMultiLog
+      enable_multi_log: enableMultiLog,
+      additional_args: additionalArgs
     });
 
     const init = { method: 'POST', headers: header, body: data };
@@ -321,10 +340,19 @@ export namespace DefaultTensorboard {
         const lastReload = data.reload_time;
         const reloadInterval = data.reload_interval;
         const enableMultiLog = data.enable_multi_log;
-        return new DefaultTensorboard(name, logdir, lastReload, reloadInterval, enableMultiLog, {
-          ...options,
-          serverSettings
-        });
+        const additionalArgs = data.additional_args;
+        return new DefaultTensorboard(
+          name,
+          logdir,
+          lastReload,
+          reloadInterval,
+          enableMultiLog,
+          additionalArgs,
+          {
+            ...options,
+            serverSettings
+          }
+        );
       });
   }
 

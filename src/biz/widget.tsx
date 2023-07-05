@@ -94,10 +94,17 @@ export class TensorboardTabReactWidget extends ReactWidget {
     logdir: string,
     refreshInterval: number,
     enableMultiLog: boolean,
+    additionalArgs: string,
     options?: Tensorboard.IOptions
   ): Promise<Tensorboard.ITensorboard> => {
     this.currentLogDir = logdir;
-    return this.tensorboardManager.startNew(logdir, refreshInterval, enableMultiLog, options);
+    return this.tensorboardManager.startNew(
+      logdir,
+      refreshInterval,
+      enableMultiLog,
+      additionalArgs,
+      options
+    );
   };
 
   setWidgetName = (name: string): void => {
