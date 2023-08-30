@@ -1,7 +1,0 @@
-node_modules
-dist
-coverage
-**/*.d.ts
-tests
-
-jupyterlab_tensorboard_pro

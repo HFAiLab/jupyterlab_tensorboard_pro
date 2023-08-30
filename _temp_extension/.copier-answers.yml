@@ -1,0 +1,14 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: e7e4c2b
+_src_path: https://gitee.com/fffffxddd/extension-template.git
+author_email: onlythen@yeah.net
+author_name: aircloud
+has_binder: false
+has_settings: false
+kind: server
+labextension_name: jupyterlab_tensorboard_pro
+project_short_description: A JupyterLab extension for tensorboard.
+python_name: jupyterlab_tensorboard_pro
+repository: https://github.com/HFAiLab/jupyterlab_tensorboard_pro
+test: false
+
