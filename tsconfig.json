@@ -17,8 +17,9 @@
     "rootDir": "src",
     "strict": true,
     "strictNullChecks": true,
-    "target": "es2017",
+    "target": "es2018",
     "types": []
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules/**/*.d.ts"]
 }
