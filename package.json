@@ -1,6 +1,6 @@
 {
   "name": "jupyterlab_tensorboard_pro",
-  "version": "0.8.0",
+  "version": "3.0.0",
   "description": "A JupyterLab extension for tensorboard.",
   "keywords": [
     "jupyter",
