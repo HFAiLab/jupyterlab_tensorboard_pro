@@ -20,8 +20,18 @@ Please install the following dependencies before installing this project:
 
 ## Install
 
+**important:**
+
+* jupyterlab 4.0+: use 4+:
+
 ```
 pip install jupyterlab-tensorboard-pro
+```
+
+* jupyterlab 3.x: use 3:
+
+```
+pip install jupyterlab-tensorboard-pro~=3.0
 ```
 
 > only jupyterlab support, not include notebook
