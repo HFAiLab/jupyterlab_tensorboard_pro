@@ -9,11 +9,10 @@ import {
 } from '@jupyterlab/apputils';
 import { ILauncher } from '@jupyterlab/launcher';
 import { IMainMenu } from '@jupyterlab/mainmenu';
-import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
+import { FileBrowser, IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { TensorboardManager } from './manager';
 import { Tensorboard } from './tensorboard';
 import { IRunningSessionManagers, IRunningSessions } from '@jupyterlab/running';
-import { toArray } from '@lumino/algorithm';
 import { LabIcon } from '@jupyterlab/ui-components';
 import tensorboardSvgStr from '../style/tensorboard.svg';
 import { TensorboardTabReactWidget } from './biz/widget';
@@ -46,13 +45,15 @@ async function activate(
   menu: IMainMenu | null,
   runningSessionManagers: IRunningSessionManagers | null
 ): Promise<WidgetTracker<MainAreaWidget<TensorboardTabReactWidget>>> {
+  console.info('activate beign test!!');
   const manager = new TensorboardManager();
   const namespace = 'tensorboard';
   const tracker = new WidgetTracker<MainAreaWidget<TensorboardTabReactWidget>>({
     namespace
   });
 
-  addCommands(app, manager, tracker, browserFactory, launcher, menu);
+  const fileBrowser = browserFactory.createFileBrowser('tensorboard_pro');
+  addCommands(app, manager, tracker, fileBrowser, launcher, menu);
 
   if (runningSessionManagers) {
     await addRunningSessionManager(runningSessionManagers, app, manager);
@@ -96,8 +97,7 @@ function addRunningSessionManager(
   return manager.getStaticConfigPromise.then(() => {
     managers.add({
       name: 'Tensorboard',
-      running: () =>
-        toArray(manager.running()).map(model => new RunningTensorboard(model, manager)),
+      running: () => manager.running().map(model => new RunningTensorboard(model, manager)),
       shutdownAll: () => manager.shutdownAll(),
       refreshRunning: () => manager.refreshRunning(),
       runningChanged: manager.runningChanged
@@ -112,7 +112,7 @@ export function addCommands(
   app: JupyterFrontEnd,
   manager: TensorboardManager,
   tracker: WidgetTracker<MainAreaWidget<TensorboardTabReactWidget>>,
-  browserFactory: IFileBrowserFactory,
+  fileBrowser: FileBrowser,
   launcher: ILauncher | null,
   menu: IMainMenu | null
 ): void {
@@ -124,7 +124,9 @@ export function addCommands(
 
       let modelName = args['modelName'] as string | undefined;
       const copy = args['copy'];
-      const currentCWD = browserFactory.defaultBrowser.model.path;
+      console.info('[DEBUG] browserFactory.defaultBrowser:', fileBrowser, fileBrowser.model.path);
+
+      const currentCWD = fileBrowser.model.path;
 
       let widget: MainAreaWidget<TensorboardTabReactWidget> | null | undefined = null;
 
@@ -147,7 +149,7 @@ export function addCommands(
       } else {
         // step2: try find opened backend widgets
         if (!modelName) {
-          const runningTensorboards = [...toArray(manager.running())];
+          const runningTensorboards = [...manager.running()];
           // hint: Using runningTensorboards directly may cause setState to fail to respond
           for (const model of runningTensorboards) {
             if (manager.formatDir(model.logdir) === manager.formatDir(currentCWD)) {
@@ -157,7 +159,7 @@ export function addCommands(
         }
 
         const tabReact = new TensorboardTabReactWidget({
-          browserFactory,
+          fileBrowser,
           tensorboardManager: manager,
           app,
           createdModelName: modelName
@@ -206,7 +208,7 @@ export function addCommands(
     caption: 'Start a new tensorboard',
     icon: args => (args['isPalette'] ? undefined : tensorboardIcon),
     execute: args => {
-      const cwd = (args['cwd'] as string) || browserFactory.defaultBrowser.model.path;
+      const cwd = (args['cwd'] as string) || fileBrowser.model.path;
       const logdir = typeof args['logdir'] === 'undefined' ? cwd : (args['logdir'] as string);
       return serviceManager.contents.get(logdir, { type: 'directory' }).then(
         dir => {

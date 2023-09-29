@@ -1,4 +1,4 @@
-import { each, map, toArray, IIterator } from '@lumino/algorithm';
+import { each, map, toArray } from '@lumino/algorithm';
 import { IDisposable } from '@lumino/disposable';
 import { JSONObject } from '@lumino/coreutils';
 import { URLExt } from '@jupyterlab/coreutils';
@@ -181,7 +181,7 @@ export namespace Tensorboard {
 
     runningChanged: ISignal<this, IModel[]>;
 
-    running(): IIterator<IModel>;
+    running(): Array<IModel>;
 
     startNew(
       logdir: string,

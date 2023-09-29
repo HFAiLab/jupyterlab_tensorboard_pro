@@ -1,5 +1,5 @@
 //Tensorboard manager
-import { IIterator, ArrayExt, iter } from '@lumino/algorithm';
+import { ArrayExt } from '@lumino/algorithm';
 import { Signal, ISignal } from '@lumino/signaling';
 import { JSONExt } from '@lumino/coreutils';
 import { Tensorboard } from './tensorboard';
@@ -78,8 +78,8 @@ export class TensorboardManager implements Tensorboard.IManager {
    *
    * @returns A new iterator over the running tensorboards.
    */
-  running(): IIterator<Tensorboard.IModel> {
-    return iter(this._models);
+  running(): Array<Tensorboard.IModel> {
+    return this._models;
   }
 
   formatDir(dir: string): string {

@@ -5,9 +5,9 @@
 
 from tornado import web
 from tornado.wsgi import WSGIContainer
-from notebook.base.handlers import IPythonHandler
-from notebook.utils import url_path_join as ujoin
-from notebook.base.handlers import path_regex
+from jupyter_server.base.handlers import JupyterHandler
+from jupyter_server.utils import url_path_join as ujoin
+from jupyter_server.base.handlers import path_regex
 
 notebook_dir = None
 
@@ -55,7 +55,7 @@ def load_jupyter_server_extension(nb_app):
     nb_app.log.info("jupyterlab_tensorboard_pro extension loaded.")
 
 
-class TensorboardHandler(IPythonHandler):
+class TensorboardHandler(JupyterHandler):
 
     def _impl(self, name, path):
 
@@ -131,7 +131,7 @@ class TensorboardHandler(IPythonHandler):
                 raise
 
 
-class TbFontHandler(IPythonHandler):
+class TbFontHandler(JupyterHandler):
 
     @web.authenticated
     def get(self):
@@ -143,5 +143,5 @@ class TbFontHandler(IPythonHandler):
             raise web.HTTPError(404)
 
 
-class TensorboardErrorHandler(IPythonHandler):
+class TensorboardErrorHandler(JupyterHandler):
     pass

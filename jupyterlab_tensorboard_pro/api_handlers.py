@@ -5,7 +5,7 @@ import os
 import logging
 
 from tornado import web
-from notebook.base.handlers import APIHandler
+from jupyter_server.base.handlers import APIHandler
 
 from .handlers import notebook_dir
 

@@ -123,7 +123,7 @@ jlpm install
 pip install jupyter_packaging
 jlpm run install:client
 jlpm run install:server
-ln -s /path/to/jupyterlab_tensorboard_pro/jupyterlab_tensorboard_pro
+ln -s /path/to/jupyterlab_tensorboard_pro jupyterlab_tensorboard_pro
 # after above maybe you need create use a soft link to hot update
 ```
 

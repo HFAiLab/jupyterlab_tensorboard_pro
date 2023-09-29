@@ -1,6 +1,6 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { ReactWidget } from '@jupyterlab/apputils';
-import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
+import { FileBrowser } from '@jupyterlab/filebrowser';
 import React from 'react';
 import { Tensorboard } from '../tensorboard';
 import { Message } from '@lumino/messaging';
@@ -13,7 +13,7 @@ const TENSORBOARD_ICON_CLASS = 'jp-Tensorboards-itemIcon';
 import { TensorboardTabReact } from './tab';
 
 export interface TensorboardInvokeOptions {
-  browserFactory: IFileBrowserFactory;
+  fileBrowser: FileBrowser;
   tensorboardManager: TensorboardManager;
   createdModelName?: string;
   app: JupyterFrontEnd;
@@ -23,7 +23,7 @@ export interface TensorboardInvokeOptions {
  * A Counter Lumino Widget that wraps a CounterComponent.
  */
 export class TensorboardTabReactWidget extends ReactWidget {
-  browserFactory: IFileBrowserFactory;
+  fileBrowser: FileBrowser;
   tensorboardManager: TensorboardManager;
   app: JupyterFrontEnd;
 
@@ -36,7 +36,7 @@ export class TensorboardTabReactWidget extends ReactWidget {
    */
   constructor(options: TensorboardInvokeOptions) {
     super();
-    this.browserFactory = options.browserFactory;
+    this.fileBrowser = options.fileBrowser;
     this.tensorboardManager = options.tensorboardManager;
     this.createdModelName = options.createdModelName;
     this.app = options.app;
@@ -47,7 +47,7 @@ export class TensorboardTabReactWidget extends ReactWidget {
 
     this.addClass('tensorboard-ng-widget');
     this.addClass(TENSORBOARD_CLASS);
-    this.title.icon = TENSORBOARD_ICON_CLASS;
+    this.title.iconClass = TENSORBOARD_ICON_CLASS;
     this.title.closable = true;
     this.title.label = 'Tensorboard';
     this.title.caption = `Name: ${this.title.label}`;
@@ -71,7 +71,7 @@ export class TensorboardTabReactWidget extends ReactWidget {
   };
 
   getCWD = (): string => {
-    return this.browserFactory.defaultBrowser.model.path;
+    return this.fileBrowser.model.path;
   };
 
   protected onCloseRequest(msg: Message): void {

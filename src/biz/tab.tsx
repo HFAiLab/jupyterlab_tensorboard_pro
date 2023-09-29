@@ -4,7 +4,6 @@ import { MenuItem } from '@blueprintjs/core/lib/esm/components/menu/menuItem';
 import { InputGroup } from '@blueprintjs/core/lib/esm/components/forms/inputGroup';
 import { Switch } from '@blueprintjs/core/lib/esm/components/forms/controls';
 import { Tag } from '@blueprintjs/core/lib/esm/components/tag/tag';
-import { toArray } from '@lumino/algorithm';
 import classNames from 'classnames';
 import { Select } from '@blueprintjs/select';
 import { showDialog, Dialog } from '@jupyterlab/apputils';
@@ -197,7 +196,7 @@ export const TensorboardTabReact = (props: TensorboardTabReactProps): JSX.Elemen
       return;
     }
     props.tensorboardManager.refreshRunning().then(() => {
-      const runningTensorboards = [...toArray(props.tensorboardManager.running())];
+      const runningTensorboards = [...props.tensorboardManager.running()];
 
       // hint: Using runningTensorboards directly may cause setState to fail to respond
       const modelList = [];

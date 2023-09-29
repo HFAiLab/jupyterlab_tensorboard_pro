@@ -9,6 +9,7 @@ node_modules/
 dist
 build
 debug.log
+.yarn
 
 jupyterlab_tensorboard_pro/labextension
 jupyterlab_tensorboard_pro/__pycache__
