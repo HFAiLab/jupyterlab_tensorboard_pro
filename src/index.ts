@@ -218,7 +218,11 @@ export function addCommands(
           } catch (e) {
             // do nothing
           }
-          app.commands.execute(CommandIDs.open);
+          fileBrowser.model.cd(logdir).then(()=>{
+            app.commands.execute(CommandIDs.open);
+          }).catch(error => {
+            console.error(`Error changing to the new path ${logdir}:`, error);
+          });
         },
         () => {
           // no such directory.
