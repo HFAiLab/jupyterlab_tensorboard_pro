@@ -210,6 +210,9 @@ export function addCommands(
     execute: args => {
       const cwd = (args['cwd'] as string) || fileBrowser.model.path;
       const logdir = typeof args['logdir'] === 'undefined' ? cwd : (args['logdir'] as string);
+      fileBrowser.model.cd(logdir).catch(error => {
+        console.error(`Error changing to the new path ${logdir}:`, error);
+      });
       return serviceManager.contents.get(logdir, { type: 'directory' }).then(
         dir => {
           // Try to open the session panel to make it easier for users to observe more active tensorboard instances
