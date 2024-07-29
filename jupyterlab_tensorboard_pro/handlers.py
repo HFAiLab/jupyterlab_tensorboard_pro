@@ -101,6 +101,14 @@ class TensorboardHandler(JupyterHandler):
         See https://github.com/tensorflow/tensorboard/issues/4685
 
         """
+        if not hasattr(self, "_jupyter_current_user"):
+            # Called too early, will be checked later
+            return None
+
+        if self.token_authenticated or self.settings.get("disable_check_xsrf", False):
+            # Token-authenticated requests do not need additional XSRF-check
+            # Servers without authentication are vulnerable to XSRF
+            return None
 
         # Check XSRF token
         try:
