@@ -3,6 +3,7 @@
 # Copyright (c) 2019, Alex Ford.  All rights reserved.
 # Copyright (c) 2020-2021, NVIDIA CORPORATION. All rights reserved.
 
+from urllib.parse import unquote
 from tornado import web
 from tornado.wsgi import WSGIContainer
 from jupyter_server.base.handlers import JupyterHandler
@@ -10,6 +11,42 @@ from jupyter_server.utils import url_path_join as ujoin
 from jupyter_server.base.handlers import path_regex
 
 notebook_dir = None
+
+
+# tornado 6.3 has some breaking changes see: https://github.com/tornadoweb/tornado/pull/3231
+# particularly this commit: https://github.com/tornadoweb/tornado/pull/3231/commits/c34c0f32a7efbf1577b1ce4610312843502912bd
+# code adopted from: https://github.com/reactive-python/reactpy/pull/971/commits/9758900bfce7d84908596a044e76802f8343c4ec
+
+_FAKE_WSGI_CONTAINER = WSGIContainer(lambda *a, **kw: iter([]))
+
+
+def handle_wsgi_request_with_instance(tb_app, request):
+    """
+    Handles a WSGI application request using an instance of WSGIContainer.
+
+    Args:
+        tb_app: The WSGI application instance.
+        request: The Tornado HTTP request.
+
+    Returns:
+        A dictionary containing the status_code, headers, and response body.
+    """
+    # Build environ from request
+    environ = _FAKE_WSGI_CONTAINER.environ(request)
+    environ["PATH_INFO"] = unquote(environ["PATH_INFO"])
+
+    response_data = {"status": None, "headers": []}
+
+    def start_response(status, headers, exc_info=None):
+        response_data["status"] = status
+        response_data["headers"] = headers
+
+    result = tb_app(environ, start_response)
+    return {
+        "status_code": int(response_data["status"].split(" ")[0]),
+        "headers": response_data["headers"],
+        "body": result if isinstance(result, bytes) else b"".join(result),
+    }
 
 
 def load_jupyter_server_extension(nb_app):
@@ -64,7 +101,12 @@ class TensorboardHandler(JupyterHandler):
         manager = self.settings["tensorboard_manager"]
         if name in manager:
             tb_app = manager[name].tb_app
-            WSGIContainer(tb_app)(self.request)
+            response = handle_wsgi_request_with_instance(tb_app, self.request)
+            self.set_status(response["status_code"])
+            for header_name, header_value in response["headers"]:
+                self.set_header(header_name, header_value)
+            self.write(response["body"])
+            self.finish()
         else:
             raise web.HTTPError(404)
 
@@ -138,7 +180,12 @@ class TbFontHandler(JupyterHandler):
         manager = self.settings["tensorboard_manager"]
         if "1" in manager:
             tb_app = manager["1"].tb_app
-            WSGIContainer(tb_app)(self.request)
+            response = handle_wsgi_request_with_instance(tb_app, self.request)
+            self.set_status(response["status_code"])
+            for header_name, header_value in response["headers"]:
+                self.set_header(header_name, header_value)
+            self.write(response["body"])
+            self.finish()
         else:
             raise web.HTTPError(404)
 
